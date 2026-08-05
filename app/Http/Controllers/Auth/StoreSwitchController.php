@@ -18,26 +18,22 @@ class StoreSwitchController extends Controller
         $user = $request->user();
         $storeId = $validated['store_id'];
 
-        // Kasir tidak boleh pindah toko
-        if ($user->hasRole('kasir') && ! $user->hasRole(['admin', 'super-admin'])) {
-            session(['store_id' => $user->store_id]);
-
-            return back();
-        }
-
-        // Mode "semua toko" hanya untuk pusat/super-admin/admin
+        // Mode "semua toko" hanya untuk role dengan akses semua toko
         if ($storeId === 'all') {
-            if ($user->hasAnyRole(['admin', 'super-admin'])) {
+            if ($user->hasAllStoreAccess()) {
                 session(['store_id' => 'all']);
             }
 
             return back();
         }
 
-        $store = Store::where('id', $storeId)->where('is_active', true)->first();
+        // Hanya izinkan pindah ke toko yang boleh diakses user
+        if ($user->canAccessStore($storeId)) {
+            $store = Store::where('id', $storeId)->where('is_active', true)->first();
 
-        if ($store) {
-            session(['store_id' => $store->id]);
+            if ($store) {
+                session(['store_id' => $store->id]);
+            }
         }
 
         return back();

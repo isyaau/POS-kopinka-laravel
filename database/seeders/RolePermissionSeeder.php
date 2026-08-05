@@ -18,34 +18,73 @@ class RolePermissionSeeder extends Seeder
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // ===== 5 Permission =====
+        // ===== Permissions (format CRUD per modul) =====
         $permissions = [
             'dashboard.view',
-            'produk.manage',
-            'transaksi.manage',
+            // Produk
+            'produk.view', 'produk.create', 'produk.update', 'produk.delete',
+            // Transaksi
+            'transaksi.view', 'transaksi.create', 'transaksi.update', 'transaksi.delete',
+            // Laporan
             'laporan.view',
-            'user.manage',
-            'anggota.manage',
-            'store.manage',
+            // Anggota
+            'anggota.view', 'anggota.create', 'anggota.update', 'anggota.delete',
+            'anggota.export', 'anggota.import',
+            // User
+            'user.view', 'user.create', 'user.update', 'user.delete',
+            // Role
+            'role.view', 'role.create', 'role.update', 'role.delete',
+            // Store
+            'store.view', 'store.create', 'store.update', 'store.delete',
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
+        $all = $permissions;
+
         // ===== Roles (prioritas admin) =====
         $admin = Role::firstOrCreate(['name' => 'admin']);
-        $admin->syncPermissions($permissions); // admin = semua 5
+        $admin->syncPermissions($all); // admin = semua
 
         $kasir = Role::firstOrCreate(['name' => 'kasir']);
         $kasir->syncPermissions([
             'dashboard.view',
-            'produk.manage',
-            'transaksi.manage',
+            'produk.view', 'produk.create', 'produk.update',
+            'transaksi.view', 'transaksi.create',
+            'anggota.view',
         ]);
 
         $superAdmin = Role::firstOrCreate(['name' => 'super-admin']);
-        $superAdmin->syncPermissions($permissions); // akses penuh global via Gate::before
+        $superAdmin->syncPermissions($all); // akses penuh global via Gate::before
+
+        // ===== Role baru (akses semua toko) =====
+        $manager = Role::firstOrCreate(['name' => 'manager']);
+        $manager->syncPermissions([
+            'dashboard.view',
+            'produk.view', 'produk.create', 'produk.update', 'produk.delete',
+            'transaksi.view', 'transaksi.create', 'transaksi.update', 'transaksi.delete',
+            'laporan.view',
+            'anggota.view', 'anggota.create', 'anggota.update',
+            'store.view',
+        ]);
+
+        $akuntansi = Role::firstOrCreate(['name' => 'akuntansi']);
+        $akuntansi->syncPermissions([
+            'dashboard.view',
+            'laporan.view',
+            'anggota.view', 'anggota.export',
+        ]);
+
+        // ===== Role per-toko =====
+        $kepalaToko = Role::firstOrCreate(['name' => 'kepala-toko']);
+        $kepalaToko->syncPermissions([
+            'dashboard.view',
+            'produk.view', 'produk.create', 'produk.update', 'produk.delete',
+            'transaksi.view', 'transaksi.create', 'transaksi.update',
+            'anggota.view', 'anggota.create', 'anggota.update',
+        ]);
 
         // ===== 6 Stores: 1 pusat + 5 toko =====
         $stores = [

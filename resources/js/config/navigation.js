@@ -10,6 +10,7 @@ import {
     ClipboardList,
     CircleUser,
     UserRound,
+    Shield,
 } from 'lucide-vue-next'
 
 export const navigation = [
@@ -22,25 +23,26 @@ export const navigation = [
     {
         title: 'Operasional',
         items: [
-            { title: 'Kasir / POS', href: '/pos', icon: ShoppingCart, permission: 'transaksi.manage' },
-            { title: 'Transaksi', href: '/transaksi', icon: ClipboardList, permission: 'transaksi.manage' },
-            { title: 'Produk', href: '/produk', icon: Package, permission: 'produk.manage' },
-            { title: 'Stok', href: '/stok', icon: Boxes, permission: 'produk.manage' },
+            { title: 'Kasir / POS', href: '/pos', icon: ShoppingCart, permission: 'transaksi.view' },
+            { title: 'Transaksi', href: '/transaksi', icon: ClipboardList, permission: 'transaksi.view' },
+            { title: 'Produk', href: '/produk', icon: Package, permission: 'produk.view' },
+            { title: 'Stok', href: '/stok', icon: Boxes, permission: 'produk.view' },
         ],
     },
     {
         title: 'Kantor Pusat',
         items: [
             { title: 'Laporan', href: '/laporan', icon: BarChart3, permission: 'laporan.view' },
-            { title: 'Toko', href: '/toko', icon: Store, permission: 'store.manage' },
+            { title: 'Toko', href: '/toko', icon: Store, permission: 'store.view' },
         ],
     },
     {
         title: 'Manajemen',
         items: [
-            { title: 'Anggota', href: '/anggota', icon: UserRound, permission: 'anggota.manage' },
-            { title: 'Pengguna', href: '/pengguna', icon: Users, permission: 'user.manage' },
-            { title: 'Pengaturan', href: '/pengaturan', icon: Settings, permission: 'user.manage' },
+            { title: 'Anggota', href: '/anggota', icon: UserRound, permission: 'anggota.view' },
+            { title: 'Pengguna', href: '/pengguna', icon: Users, permission: 'user.view' },
+            { title: 'Role', href: '/roles', icon: Shield, permission: 'role.view' },
+            { title: 'Pengaturan', href: '/pengaturan', icon: Settings, permission: 'user.view' },
         ],
     },
 ]

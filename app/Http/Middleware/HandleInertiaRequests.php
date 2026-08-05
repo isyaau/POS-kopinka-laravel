@@ -69,24 +69,34 @@ class HandleInertiaRequests extends Middleware
 
     /**
      * Daftar toko yang bisa diakses user.
-     * Pusat/admin/super-admin bisa akses semua + mode "all".
+     * - super-admin/admin/manager/akuntansi: semua toko + mode "all".
+     * - kepala-toko/kasir: toko utama (store_id) + pivot store_user (tanpa "all").
      */
     protected function accessibleStores($user): array
     {
-        $isKasirOnly = $user->hasRole('kasir') && ! $user->hasAnyRole(['admin', 'super-admin']);
-
-        if ($isKasirOnly) {
-            return $user->store
-                ? [[
-                    'id' => $user->store->id,
-                    'kode' => $user->store->kode,
-                    'nama' => $user->store->nama,
-                    'tipe' => $user->store->tipe,
-                ]]
-                : [];
+        if ($user->hasAllStoreAccess()) {
+            return Store::where('is_active', true)
+                ->orderBy('id')
+                ->get()
+                ->map(fn ($s) => [
+                    'id' => $s->id,
+                    'kode' => $s->kode,
+                    'nama' => $s->nama,
+                    'tipe' => $s->tipe,
+                ])
+                ->push([
+                    'id' => 'all',
+                    'kode' => 'ALL',
+                    'nama' => 'Semua Toko',
+                    'tipe' => 'pusat',
+                ])
+                ->values()
+                ->all();
         }
 
-        $stores = Store::where('is_active', true)
+        // user per-toko: toko utama + toko pivot
+        $ids = collect($user->accessibleStoreIds());
+        $stores = Store::whereIn('id', $ids)->where('is_active', true)
             ->orderBy('id')
             ->get()
             ->map(fn ($s) => [
@@ -94,12 +104,6 @@ class HandleInertiaRequests extends Middleware
                 'kode' => $s->kode,
                 'nama' => $s->nama,
                 'tipe' => $s->tipe,
-            ])
-            ->push([
-                'id' => 'all',
-                'kode' => 'ALL',
-                'nama' => 'Semua Toko',
-                'tipe' => 'pusat',
             ])
             ->values()
             ->all();
@@ -123,7 +127,12 @@ class HandleInertiaRequests extends Middleware
             ];
         }
 
-        if ($storeId) {
+        if ($storeId && $storeId !== 'all') {
+            // Pastikan hanya toko yang diizinkan user
+            if (! $user->canAccessStore($storeId)) {
+                return null;
+            }
+
             $store = Store::find($storeId);
             if ($store) {
                 return [
