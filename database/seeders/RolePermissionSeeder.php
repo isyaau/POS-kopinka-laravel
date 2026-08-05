@@ -26,6 +26,7 @@ class RolePermissionSeeder extends Seeder
             'laporan.view',
             'user.manage',
             'anggota.manage',
+            'store.manage',
         ];
 
         foreach ($permissions as $permission) {

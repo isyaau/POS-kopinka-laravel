@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\StoreSwitchController;
 use App\Http\Controllers\AnggotaController;
+use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -65,4 +66,10 @@ Route::middleware(['auth'])->group(function () {
         ->only(['index', 'store', 'update', 'destroy'])
         ->middleware('permission:anggota.manage')
         ->parameters(['anggota' => 'anggota']);
+
+    // ===== Toko =====
+    Route::resource('toko', StoreController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->middleware('permission:store.manage')
+        ->parameters(['toko' => 'store']);
 });

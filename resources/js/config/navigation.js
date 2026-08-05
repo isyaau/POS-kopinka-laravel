@@ -32,7 +32,7 @@ export const navigation = [
         title: 'Kantor Pusat',
         items: [
             { title: 'Laporan', href: '/laporan', icon: BarChart3, permission: 'laporan.view' },
-            { title: 'Toko', href: '/toko', icon: Store, permission: 'user.manage' },
+            { title: 'Toko', href: '/toko', icon: Store, permission: 'store.manage' },
         ],
     },
     {
