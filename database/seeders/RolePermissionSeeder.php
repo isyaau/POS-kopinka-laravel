@@ -25,6 +25,7 @@ class RolePermissionSeeder extends Seeder
             'transaksi.manage',
             'laporan.view',
             'user.manage',
+            'anggota.manage',
         ];
 
         foreach ($permissions as $permission) {

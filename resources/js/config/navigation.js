@@ -9,6 +9,7 @@ import {
     Boxes,
     ClipboardList,
     CircleUser,
+    UserRound,
 } from 'lucide-vue-next'
 
 export const navigation = [
@@ -37,6 +38,7 @@ export const navigation = [
     {
         title: 'Manajemen',
         items: [
+            { title: 'Anggota', href: '/anggota', icon: UserRound, permission: 'anggota.manage' },
             { title: 'Pengguna', href: '/pengguna', icon: Users, permission: 'user.manage' },
             { title: 'Pengaturan', href: '/pengaturan', icon: Settings, permission: 'user.manage' },
         ],

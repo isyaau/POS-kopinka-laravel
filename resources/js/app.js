@@ -1,4 +1,5 @@
 import '../css/app.css'
+import 'vue-sonner/style.css'
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 import { Toaster } from '@/components/ui/sonner'

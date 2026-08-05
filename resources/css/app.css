@@ -138,7 +138,46 @@
         @apply border-border outline-ring/50;
     }
 
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
+
     body {
         @apply bg-background text-foreground antialiased;
+    }
+
+    #app {
+        height: 100%;
+    }
+}
+
+/* ============================================================
+   Scrollbar kustom untuk sidebar — profesional & elegan
+   ============================================================ */
+.sidebar-scroll {
+    scrollbar-width: thin;                 /* Firefox */
+    scrollbar-color: color-mix(in srgb, var(--sidebar-primary) 45%, transparent) transparent;
+
+    /* WebKit / Blink (Chrome, Edge, Safari) */
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--sidebar-primary) 35%, transparent);
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+
+        &:hover {
+            background: color-mix(in srgb, var(--sidebar-primary) 60%, transparent);
+        }
     }
 }

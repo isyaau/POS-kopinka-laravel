@@ -20,7 +20,7 @@ const isActive = (href) => {
 </script>
 
 <template>
-    <nav class="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
+    <nav class="sidebar-scroll flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
         <div v-for="group in groups" :key="group.title" class="flex flex-col gap-1">
             <p
                 v-if="!collapsed"

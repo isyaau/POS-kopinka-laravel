@@ -25,12 +25,12 @@ const toggleMobile = () => {
 }
 
 const mainClass = computed(() =>
-    cn('flex min-h-svh w-full flex-col transition-all duration-300', collapsed.value ? 'lg:pl-16' : 'lg:pl-64'),
+    cn('flex min-w-0 flex-1 flex-col transition-all duration-300', collapsed.value ? 'lg:pl-16' : 'lg:pl-64'),
 )
 </script>
 
 <template>
-    <div class="flex min-h-svh w-full bg-background">
+    <div class="flex h-svh w-full overflow-hidden bg-background">
         <!-- Desktop sidebar -->
         <div class="fixed inset-y-0 left-0 z-30 hidden lg:block">
             <AppSidebar :collapsed="collapsed" />
@@ -58,8 +58,10 @@ const mainClass = computed(() =>
                 :on-toggle-collapse="toggleCollapse"
                 :collapsed="collapsed"
             />
-            <main class="flex-1 p-4 md:p-6 lg:p-8">
-                <slot />
+            <main class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 md:p-4 lg:p-5">
+                <div class="flex min-h-0 flex-1 flex-col">
+                    <slot />
+                </div>
             </main>
         </div>
 

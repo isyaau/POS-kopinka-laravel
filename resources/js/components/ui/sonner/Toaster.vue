@@ -8,13 +8,5 @@ defineProps({
 </script>
 
 <template>
-    <Sonner
-        :position="position"
-        :theme="theme"
-        class="toaster group"
-        :toast-options="{
-            class: 'toast group',
-        }"
-        rich-colors="rich-colors"
-    />
+    <Sonner :position="position" :theme="theme" rich-colors />
 </template>

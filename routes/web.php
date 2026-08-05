@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\StoreSwitchController;
+use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -51,4 +52,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pengguna', fn () => Inertia::render('Pengguna/Index'))
         ->middleware('permission:user.manage')
         ->name('pengguna.index');
+
+    Route::get('anggota/export', [AnggotaController::class, 'export'])
+        ->middleware('permission:anggota.manage')
+        ->name('anggota.export');
+
+    Route::post('anggota/import', [AnggotaController::class, 'import'])
+        ->middleware('permission:anggota.manage')
+        ->name('anggota.import');
+
+    Route::resource('anggota', AnggotaController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->middleware('permission:anggota.manage')
+        ->parameters(['anggota' => 'anggota']);
 });
