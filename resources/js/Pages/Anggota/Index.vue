@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Head, router, useForm, usePage } from '@inertiajs/vue3'
+import { Head, router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import { Card, CardContent } from '@/components/ui/card'
@@ -20,7 +20,7 @@ import CreateAnggotaModal from './CreateAnggotaModal.vue'
 import EditAnggotaModal from './EditAnggotaModal.vue'
 import ImportAnggotaModal from './ImportAnggotaModal.vue'
 import DetailAnggotaModal from './DetailAnggotaModal.vue'
-import { toast } from '@/components/ui/sonner'
+import DeleteConfirmModal from './DeleteConfirmModal.vue'
 import {
     Select,
     SelectContent,
@@ -54,21 +54,13 @@ const editingAnggota = ref(null)
 const importOpen = ref(false)
 const detailOpen = ref(false)
 const selectedAnggota = ref(null)
+const deleteOpen = ref(false)
+const deletingAnggota = ref(null)
 const search = ref(props.filters.search || '')
 const tanggalMulai = ref(props.filters.tanggal_mulai || '')
 const tanggalSelesai = ref(props.filters.tanggal_selesai || '')
 const statusFilter = ref(props.filters.status_filter || 'semua')
 
-// Flash toast global (dari session flash backend)
-const page = usePage()
-watch(
-    () => page.props.flash,
-    (flash) => {
-        if (flash?.success) toast.success(flash.success)
-        if (flash?.error) toast.error(flash.error)
-    },
-    { immediate: true },
-)
 
 // Format Rupiah
 const formatRupiah = (val) => {
@@ -158,14 +150,9 @@ const openEdit = (item) => {
     editOpen.value = true
 }
 
-const deleteForm = useForm({})
-
 const confirmDelete = (item) => {
-    if (window.confirm(`Hapus anggota "${item.nama}"? Tindakan ini tidak dapat dibatalkan.`)) {
-        deleteForm.delete(`/anggota/${item.id}`, {
-            preserveScroll: true,
-        })
-    }
+    deletingAnggota.value = item
+    deleteOpen.value = true
 }
 
 const items = computed(() => props.anggota?.data || [])
@@ -396,5 +383,6 @@ const purnaBadge = (purna) => (purna ? 'purna' : 'secondary')
         <EditAnggotaModal :open="editOpen" :anggota="editingAnggota" @update:open="editOpen = $event" />
         <ImportAnggotaModal :open="importOpen" @update:open="importOpen = $event" />
         <DetailAnggotaModal :open="detailOpen" :anggota="selectedAnggota" @update:open="detailOpen = $event" />
+        <DeleteConfirmModal :open="deleteOpen" :anggota="deletingAnggota" @update:open="deleteOpen = $event" />
     </AppLayout>
 </template>

@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, provide } from 'vue'
+import { ref, computed, provide, watch } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import AppSidebar from './AppSidebar.vue'
 import AppHeader from './AppHeader.vue'
 import SidebarNav from './SidebarNav.vue'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster, toast } from '@/components/ui/sonner'
 import { Coffee } from 'lucide-vue-next'
 import {
     Sheet,
@@ -16,6 +17,10 @@ import { cn } from '@/lib/utils'
 const collapsed = ref(false)
 const mobileOpen = ref(false)
 
+const props = defineProps({
+    contentFill: { type: Boolean, default: true },
+})
+
 const toggleCollapse = () => {
     collapsed.value = !collapsed.value
 }
@@ -26,6 +31,18 @@ const toggleMobile = () => {
 
 const mainClass = computed(() =>
     cn('flex min-w-0 flex-1 flex-col transition-all duration-300', collapsed.value ? 'lg:pl-16' : 'lg:pl-64'),
+)
+
+// Tampilkan toast global dari flash message (semua halaman).
+// Dipicu saat URL berubah (navigasi Inertia) — membaca flash yang baru dirender.
+const page = usePage()
+watch(
+    () => page.url,
+    () => {
+        const flash = page.props.flash
+        if (flash?.success) toast.success(flash.success)
+        if (flash?.error) toast.error(flash.error)
+    },
 )
 </script>
 
@@ -58,11 +75,20 @@ const mainClass = computed(() =>
                 :on-toggle-collapse="toggleCollapse"
                 :collapsed="collapsed"
             />
-            <main class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 md:p-4 lg:p-5">
+            <main class="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 md:p-4 lg:p-5">
                 <div class="flex min-h-0 flex-1 flex-col">
                     <slot />
                 </div>
             </main>
+            <footer
+                class="text-muted-foreground flex shrink-0 flex-col gap-1 border-t bg-background px-3 py-3 text-[11px] sm:flex-row sm:items-center sm:justify-between md:px-4 lg:px-5"
+            >
+                <p class="flex items-center gap-1.5">
+                    <Coffee class="size-3" />
+                    © 2026 POS Kopinka — Sistem Kasir Multi-Toko
+                </p>
+                <p>v1.0.0</p>
+            </footer>
         </div>
 
         <Toaster />

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import {
     Dialog,
     DialogContent,
@@ -24,6 +24,8 @@ const file = ref(null)
 const fileError = ref('')
 const importing = ref(false)
 const showGuide = ref(false)
+
+const page = usePage()
 
 // Reset saat dialog dibuka
 watch(
@@ -78,6 +80,8 @@ const submit = () => {
         onSuccess: () => {
             importing.value = false
             emit('update:open', false)
+            const flash = page.props.flash
+            if (flash?.success) toast.success(flash.success)
         },
         onError: (errors) => {
             importing.value = false

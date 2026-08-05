@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select'
 import { Loader2, UserPlus } from 'lucide-vue-next'
+import { toast } from '@/components/ui/sonner'
 
 const props = defineProps({
     open: { type: Boolean, default: false },
@@ -73,6 +74,7 @@ const submit = () => {
         onSuccess: () => {
             resetForm()
             emit('update:open', false)
+            toast.success('Anggota berhasil ditambahkan.')
         },
     })
 }

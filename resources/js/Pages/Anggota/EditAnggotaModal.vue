@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select'
 import { Loader2, Save } from 'lucide-vue-next'
+import { toast } from '@/components/ui/sonner'
 
 const props = defineProps({
     open: { type: Boolean, default: false },
@@ -81,17 +82,22 @@ watch(
 const submit = () => {
     form.put(`/anggota/${props.anggota.id}`, {
         preserveScroll: true,
-        onSuccess: () => emit('update:open', false),
+        onSuccess: () => {
+            emit('update:open', false)
+            setTimeout(() => {
+                toast.success('Data anggota berhasil diperbarui.')
+            }, 50)
+        },
     })
 }
 </script>
 
 <template>
     <Dialog :open="open" @update:open="emit('update:open', $event)">
-        <DialogContent class="max-h-[90svh] max-w-3xl overflow-y-auto p-0">
-            <form @submit.prevent="submit" class="flex flex-col">
-                <!-- Header -->
-                <DialogHeader class="border-b p-6 pb-4">
+        <DialogContent class="flex max-h-[90svh] max-w-3xl flex-col gap-0 overflow-hidden p-0">
+            <form @submit.prevent="submit" class="flex min-h-0 flex-1 flex-col">
+                <!-- Header (tidak ikut scroll) -->
+                <DialogHeader class="shrink-0 border-b p-6 pb-4">
                     <div class="flex items-center gap-3">
                         <div class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
                             <Save class="size-5" />
@@ -103,8 +109,8 @@ const submit = () => {
                     </div>
                 </DialogHeader>
 
-                <!-- Body -->
-                <div class="flex flex-col gap-6 p-6">
+                <!-- Body (scrollable) -->
+                <div class="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6">
                     <!-- Identitas -->
                     <section class="flex flex-col gap-4">
                         <div class="flex items-center gap-2">
@@ -254,8 +260,8 @@ const submit = () => {
                     </section>
                 </div>
 
-                <!-- Footer -->
-                <DialogFooter class="border-t p-6 pt-4">
+                <!-- Footer (tidak ikut scroll) -->
+                <DialogFooter class="shrink-0 border-t p-6 pt-4">
                     <Button type="button" variant="outline" @click="emit('update:open', false)" :disabled="form.processing">
                         Batal
                     </Button>

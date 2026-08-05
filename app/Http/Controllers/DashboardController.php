@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Anggota;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -34,7 +35,57 @@ class DashboardController extends Controller
                 ] : null),
                 'total_stores' => Store::where('is_active', true)->count(),
                 'user_role' => $user->getRoleNames()->first(),
+                'anggota_stats' => $this->anggotaStats($storeId),
             ],
         ]);
+    }
+
+    /**
+     * Statistik status anggota & karyawan.
+     *
+     * Kategori:
+     * - anggota: aktif, aktif purna, diblokir, pasif purna
+     * - karyawan: aktif, diblokir, pasif purna
+     */
+    protected function anggotaStats(?string $storeId): array
+    {
+        $query = Anggota::query();
+
+        if ($storeId && $storeId !== 'all') {
+            $query->where('store_id', $storeId);
+        }
+
+        $rows = (clone $query)
+            ->selectRaw("
+                status,
+                COUNT(*) FILTER (WHERE status_aktif = true AND status_purna = false AND status_limit = false) AS aktif,
+                COUNT(*) FILTER (WHERE status_purna = true AND status_aktif = true) AS aktif_purna,
+                COUNT(*) FILTER (WHERE status_limit = true) AS diblokir,
+                COUNT(*) FILTER (WHERE status_purna = true AND status_aktif = false) AS pasif_purna
+            ")
+            ->groupBy('status')
+            ->get()
+            ->keyBy('status');
+
+        $get = fn (string $status, string $col): int => (int) ($rows[$status]->{$col} ?? 0);
+
+        $anggota = [
+            'aktif' => $get('anggota', 'aktif'),
+            'aktif_purna' => $get('anggota', 'aktif_purna'),
+            'diblokir' => $get('anggota', 'diblokir'),
+            'pasif_purna' => $get('anggota', 'pasif_purna'),
+        ];
+
+        $karyawan = [
+            'aktif' => $get('karyawan', 'aktif'),
+            'diblokir' => $get('karyawan', 'diblokir'),
+            'pasif_purna' => $get('karyawan', 'pasif_purna'),
+        ];
+
+        return [
+            'anggota' => $anggota,
+            'karyawan' => $karyawan,
+            'total' => (int) (clone $query)->count(),
+        ];
     }
 }
