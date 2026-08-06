@@ -18,8 +18,10 @@ const collapsed = ref(false)
 const mobileOpen = ref(false)
 
 const props = defineProps({
-    contentFill: { type: Boolean, default: false },
+    contentFill: { type: [Boolean, String], default: false },
 })
+
+const isFill = computed(() => props.contentFill === true || props.contentFill === 'true')
 
 const toggleCollapse = () => {
     collapsed.value = !collapsed.value
@@ -77,14 +79,14 @@ watch(
             />
             <main
                 class="flex min-h-0 flex-1 flex-col overflow-y-auto"
-                :class="props.contentFill ? 'p-0' : 'px-4 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6'"
+                :class="isFill ? 'p-0' : 'px-4 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6'"
             >
                 <div class="flex min-h-0 flex-1 flex-col">
                     <slot />
                 </div>
             </main>
             <footer
-                v-if="!props.contentFill"
+                v-if="!isFill"
                 class="text-muted-foreground flex shrink-0 flex-col gap-1 border-t bg-background px-4 py-3 text-[11px] sm:flex-row sm:items-center sm:justify-between md:px-6 lg:px-8"
             >
                 <p class="flex items-center gap-1.5">
