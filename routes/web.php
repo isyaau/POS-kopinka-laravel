@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\StoreSwitchController;
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
@@ -127,4 +128,36 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('pengguna/{user}', [UserController::class, 'destroy'])
         ->middleware('permission:user.delete')
         ->name('pengguna.destroy');
+
+    // ===== Supplier (CRUD) =====
+    Route::get('suppliers/export', [SupplierController::class, 'export'])
+        ->middleware('permission:supplier.export')
+        ->name('supplier.export');
+
+    Route::post('suppliers/import', [SupplierController::class, 'import'])
+        ->middleware('permission:supplier.import')
+        ->name('supplier.import');
+
+    Route::get('suppliers', [SupplierController::class, 'index'])
+        ->middleware('permission:supplier.view')
+        ->name('supplier.index');
+
+    Route::post('suppliers', [SupplierController::class, 'store'])
+        ->middleware('permission:supplier.create')
+        ->name('supplier.store');
+
+    Route::put('suppliers/{supplier}', [SupplierController::class, 'update'])
+        ->middleware('permission:supplier.update')
+        ->name('supplier.update');
+
+    Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])
+        ->middleware('permission:supplier.delete')
+        ->name('supplier.destroy');
+
+    // ===== Migrasi Data =====
+    Route::get('migrasi', function () {
+        return Inertia::render('Migrasi/Index');
+    })
+        ->middleware('permission:supplier.import')
+        ->name('migrasi.index');
 });

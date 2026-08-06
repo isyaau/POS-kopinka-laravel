@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Supplier extends Model
+{
+    /**
+     * Nama tabel eksplisit (hindari pluralisasi default).
+     */
+    protected $table = 'suppliers';
+
+    protected $fillable = [
+        'kode',
+        'nama',
+        'alamat',
+        'contact_person',
+        'no_telp',
+        'keterangan',
+        'store_id',
+    ];
+
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
+    }
+
+    /**
+     * Auto-generate kode supplier jika kosong: SPL-0001, SPL-0002, dst.
+     */
+    public function generateKode(): string
+    {
+        $prefix = 'SPL';
+        $last = static::where('kode', 'like', $prefix . '-%')
+            ->orderByDesc('kode')
+            ->value('kode');
+
+        $next = $last ? ((int) substr($last, strlen($prefix) + 1)) + 1 : 1;
+
+        return sprintf('%s-%04d', $prefix, $next);
+    }
+}

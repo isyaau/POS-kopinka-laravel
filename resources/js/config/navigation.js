@@ -11,6 +11,8 @@ import {
     CircleUser,
     UserRound,
     Shield,
+    Truck,
+    Database,
 } from 'lucide-vue-next'
 
 export const navigation = [
@@ -40,9 +42,16 @@ export const navigation = [
         title: 'Manajemen',
         items: [
             { title: 'Anggota', href: '/anggota', icon: UserRound, permission: 'anggota.view' },
+            { title: 'Supplier', href: '/suppliers', icon: Truck, permission: 'supplier.view' },
             { title: 'Pengguna', href: '/pengguna', icon: Users, permission: 'user.view' },
             { title: 'Role', href: '/roles', icon: Shield, permission: 'role.view' },
             { title: 'Pengaturan', href: '/pengaturan', icon: Settings, permission: 'user.view' },
+        ],
+    },
+    {
+        title: 'Migrasi',
+        items: [
+            { title: 'Migrasi Data', href: '/migrasi', icon: Database, permission: 'supplier.import' },
         ],
     },
 ]

@@ -30,6 +30,9 @@ class RolePermissionSeeder extends Seeder
             // Anggota
             'anggota.view', 'anggota.create', 'anggota.update', 'anggota.delete',
             'anggota.export', 'anggota.import',
+            // Supplier
+            'supplier.view', 'supplier.create', 'supplier.update', 'supplier.delete',
+            'supplier.export', 'supplier.import',
             // User
             'user.view', 'user.create', 'user.update', 'user.delete',
             // Role
@@ -67,6 +70,7 @@ class RolePermissionSeeder extends Seeder
             'transaksi.view', 'transaksi.create', 'transaksi.update', 'transaksi.delete',
             'laporan.view',
             'anggota.view', 'anggota.create', 'anggota.update',
+            'supplier.view', 'supplier.create', 'supplier.update', 'supplier.import',
             'store.view',
         ]);
 
@@ -84,6 +88,7 @@ class RolePermissionSeeder extends Seeder
             'produk.view', 'produk.create', 'produk.update', 'produk.delete',
             'transaksi.view', 'transaksi.create', 'transaksi.update',
             'anggota.view', 'anggota.create', 'anggota.update',
+            'supplier.view', 'supplier.create', 'supplier.update', 'supplier.import',
         ]);
 
         // ===== 6 Stores: 1 pusat + 5 toko =====
