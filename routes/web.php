@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\LaporanController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -134,7 +135,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:produk.delete')
         ->name('produk.destroy');
 
-    Route::get('/laporan', fn () => Inertia::render('Laporan/Index'))
+    Route::get('/laporan', [LaporanController::class, 'index'])
         ->middleware('permission:laporan.view')
         ->name('laporan.index');
 
