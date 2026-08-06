@@ -23,6 +23,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             // Produk
             'produk.view', 'produk.create', 'produk.update', 'produk.delete',
+            'produk.export', 'produk.import',
             // Transaksi
             'transaksi.view', 'transaksi.create', 'transaksi.update', 'transaksi.delete',
             // Laporan

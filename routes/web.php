@@ -6,6 +6,7 @@ use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
@@ -45,9 +46,30 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:transaksi.view')
         ->name('pos.index');
 
-    Route::get('/produk', fn () => Inertia::render('Produk/Index'))
+    // ===== Produk / Persediaan (CRUD) =====
+    Route::get('produk/export', [ProdukController::class, 'export'])
+        ->middleware('permission:produk.export')
+        ->name('produk.export');
+
+    Route::post('produk/import', [ProdukController::class, 'import'])
+        ->middleware('permission:produk.import')
+        ->name('produk.import');
+
+    Route::get('produk', [ProdukController::class, 'index'])
         ->middleware('permission:produk.view')
         ->name('produk.index');
+
+    Route::post('produk', [ProdukController::class, 'store'])
+        ->middleware('permission:produk.create')
+        ->name('produk.store');
+
+    Route::put('produk/{produk}', [ProdukController::class, 'update'])
+        ->middleware('permission:produk.update')
+        ->name('produk.update');
+
+    Route::delete('produk/{produk}', [ProdukController::class, 'destroy'])
+        ->middleware('permission:produk.delete')
+        ->name('produk.destroy');
 
     Route::get('/laporan', fn () => Inertia::render('Laporan/Index'))
         ->middleware('permission:laporan.view')
