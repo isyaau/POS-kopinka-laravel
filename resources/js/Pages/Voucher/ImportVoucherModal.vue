@@ -1,0 +1,186 @@
+<script setup>
+import { ref, watch } from 'vue'
+import { router } from '@inertiajs/vue3'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogFooter,
+    DialogTitle,
+    DialogDescription,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Loader2, UploadCloud, Download, FileSpreadsheet, X, HelpCircle, ChevronDown } from 'lucide-vue-next'
+import { toast } from '@/components/ui/sonner'
+
+const props = defineProps({
+    open: { type: Boolean, default: false },
+})
+
+const emit = defineEmits(['update:open'])
+
+const file = ref(null)
+const fileError = ref('')
+const importing = ref(false)
+const showGuide = ref(false)
+
+const validateFile = (f) => {
+    const ext = f.name.split('.').pop().toLowerCase()
+    if (!['xlsx', 'xls', 'csv'].includes(ext)) return 'Format file harus .xlsx, .xls, atau .csv'
+    if (f.size > 2 * 1024 * 1024) return 'Ukuran file maksimal 2MB'
+    return ''
+}
+
+watch(
+    () => props.open,
+    (val) => {
+        if (val) {
+            file.value = null
+            fileError.value = ''
+            showGuide.value = false
+        }
+    },
+)
+
+const onFileChange = (e) => {
+    const f = e.target.files?.[0]
+    file.value = f || null
+    fileError.value = f ? validateFile(f) : ''
+}
+
+const removeFile = () => {
+    file.value = null
+    fileError.value = ''
+}
+
+const downloadTemplate = () => {
+    window.location.href = '/voucher/export?template=1'
+}
+
+const submit = () => {
+    if (!file.value) {
+        fileError.value = 'Pilih file terlebih dahulu.'
+        return
+    }
+    if (fileError.value) return
+
+    importing.value = true
+    const formData = new FormData()
+    formData.append('file', file.value)
+
+    router.post('/voucher/import', formData, {
+        forceFormData: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            importing.value = false
+            toast.success('Import voucher selesai.')
+        },
+        onError: (errors) => {
+            importing.value = false
+            const first = Object.values(errors)[0]
+            if (first) toast.error(first)
+        },
+        onFinish: () => {
+            importing.value = false
+        },
+    })
+}
+</script>
+
+<template>
+    <Dialog :open="open" @update:open="emit('update:open', $event)">
+        <DialogContent class="max-h-[90svh] max-w-2xl overflow-y-auto p-0">
+            <form @submit.prevent="submit" class="flex flex-col">
+                <DialogHeader class="border-b p-6 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
+                            <UploadCloud class="size-5" />
+                        </div>
+                        <div>
+                            <DialogTitle class="text-xl">Import Data Voucher</DialogTitle>
+                            <DialogDescription>Upload file Excel/CSV berisi data kupon.</DialogDescription>
+                        </div>
+                    </div>
+                </DialogHeader>
+
+                <div class="flex flex-col gap-4 p-6">
+                    <div class="bg-muted/50 flex items-start gap-3 rounded-lg border p-3 text-sm">
+                        <Download class="text-primary mt-0.5 size-4 shrink-0" />
+                        <div class="text-muted-foreground text-xs">
+                            Gunakan template yang disediakan agar format kolom sesuai. Kolom:
+                            <b>KODE, NAMA, NOMINAL, BARCODE, STATUS, TANGGAL EXPIRED, KETERANGAN</b>.
+                            Kode/barcode kosong dibuat otomatis.
+                        </div>
+                    </div>
+
+                    <Button type="button" variant="outline" size="sm" class="w-fit" @click="downloadTemplate">
+                        <Download class="size-4" />
+                        Unduh Template
+                    </Button>
+
+                    <div class="rounded-lg border">
+                        <button
+                            type="button"
+                            class="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted/50"
+                            @click="showGuide = !showGuide"
+                        >
+                            <span class="flex items-center gap-2">
+                                <HelpCircle class="text-primary size-4" />
+                                Panduan Mengisi Template
+                            </span>
+                            <ChevronDown class="text-muted-foreground size-4 transition-transform" :class="{ 'rotate-180': showGuide }" />
+                        </button>
+                        <div v-if="showGuide" class="border-t px-3 py-3">
+                            <ol class="text-muted-foreground flex list-decimal flex-col gap-2 pl-4 text-xs">
+                                <li>Kolom <b class="text-foreground">KODE</b> boleh kosong — dibuat otomatis (VCH-...).</li>
+                                <li><b class="text-foreground">NOMINAL</b> diisi angka tanpa titik/koma ribuan.</li>
+                                <li><b class="text-foreground">BARCODE</b> boleh kosong — dibuat otomatis (13 digit).</li>
+                                <li><b class="text-foreground">STATUS</b>: aktif / terpakai / kedaluwarsa.</li>
+                                <li>Tanggal: DD-MM-YYYY.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label>File Excel/CSV</Label>
+                        <label
+                            class="border-input hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 text-center transition-colors"
+                            :class="{ 'border-primary': file }"
+                        >
+                            <template v-if="!file">
+                                <UploadCloud class="text-muted-foreground size-8" />
+                                <span class="text-muted-foreground text-sm">
+                                    Klik untuk memilih file<br />
+                                    <span class="text-xs">.xlsx, .xls, .csv — maks 2MB</span>
+                                </span>
+                            </template>
+                            <template v-else>
+                                <FileSpreadsheet class="text-primary size-8" />
+                                <span class="text-sm font-medium">{{ file.name }}</span>
+                                <span class="text-muted-foreground text-xs">{{ (file.size / 1024).toFixed(1) }} KB</span>
+                                <Button type="button" variant="ghost" size="sm" class="mt-1" @click.stop="removeFile">
+                                    <X class="size-4" />
+                                    Hapus file
+                                </Button>
+                            </template>
+                            <input type="file" accept=".xlsx,.xls,.csv" class="hidden" @change="onFileChange" />
+                        </label>
+                        <p v-if="fileError" class="text-destructive text-xs">{{ fileError }}</p>
+                    </div>
+                </div>
+
+                <DialogFooter class="border-t p-6 pt-4">
+                    <Button type="button" variant="outline" @click="emit('update:open', false)">
+                        Batal
+                    </Button>
+                    <Button type="submit" :disabled="importing || !file">
+                        <Loader2 v-if="importing" class="size-4 animate-spin" />
+                        <UploadCloud v-else class="size-4" />
+                        {{ importing ? 'Mengimpor...' : 'Import Data Voucher' }}
+                    </Button>
+                </DialogFooter>
+            </form>
+        </DialogContent>
+    </Dialog>
+</template>

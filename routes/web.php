@@ -7,8 +7,12 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\StokController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PosController;
+use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -41,10 +45,69 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:dashboard.view')
         ->name('dashboard');
 
-    // ===== Modul (dibangun bertahap) =====
-    Route::get('/pos', fn () => Inertia::render('POS/Index'))
+    // ===== Kasir / POS =====
+    Route::get('/pos', [PosController::class, 'index'])
         ->middleware('permission:transaksi.view')
         ->name('pos.index');
+
+    // ===== Transaksi (CRUD + detail item + stok otomatis) =====
+    Route::get('transaksi/export', [TransaksiController::class, 'export'])
+        ->middleware('permission:transaksi.export')
+        ->name('transaksi.export');
+
+    Route::post('transaksi/import', [TransaksiController::class, 'import'])
+        ->middleware('permission:transaksi.import')
+        ->name('transaksi.import');
+
+    Route::get('transaksi', [TransaksiController::class, 'index'])
+        ->middleware('permission:transaksi.view')
+        ->name('transaksi.index');
+
+    Route::post('transaksi', [TransaksiController::class, 'store'])
+        ->middleware('permission:transaksi.create')
+        ->name('transaksi.store');
+
+    Route::put('transaksi/{transaksi}', [TransaksiController::class, 'update'])
+        ->middleware('permission:transaksi.update')
+        ->name('transaksi.update');
+
+    Route::delete('transaksi/{transaksi}', [TransaksiController::class, 'destroy'])
+        ->middleware('permission:transaksi.delete')
+        ->name('transaksi.destroy');
+
+    // ===== Stok =====
+    Route::get('stok/bulanan', [StokController::class, 'bulanan'])
+        ->middleware('permission:stok.view')
+        ->name('stok.bulanan');
+
+    Route::get('stok', [StokController::class, 'index'])
+        ->middleware('permission:stok.view')
+        ->name('stok.index');
+
+    // ===== Voucher (kupon + barcode) =====
+    Route::get('voucher/export', [VoucherController::class, 'export'])
+        ->middleware('permission:voucher.export')
+        ->name('voucher.export');
+
+    Route::post('voucher/import', [VoucherController::class, 'import'])
+        ->middleware('permission:voucher.import')
+        ->name('voucher.import');
+
+    Route::get('voucher', [VoucherController::class, 'index'])
+        ->middleware('permission:voucher.view')
+        ->name('voucher.index');
+
+    Route::post('voucher', [VoucherController::class, 'store'])
+        ->middleware('permission:voucher.create')
+        ->name('voucher.store');
+
+    Route::put('voucher/{voucher}', [VoucherController::class, 'update'])
+        ->middleware('permission:voucher.update')
+        ->name('voucher.update');
+
+    Route::delete('voucher/{voucher}', [VoucherController::class, 'destroy'])
+        ->middleware('permission:voucher.delete')
+        ->name('voucher.destroy');
 
     // ===== Produk / Persediaan (CRUD) =====
     Route::get('produk/export', [ProdukController::class, 'export'])

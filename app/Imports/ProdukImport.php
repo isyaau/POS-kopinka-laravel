@@ -30,6 +30,30 @@ class ProdukImport implements ToModel, WithHeadingRow, WithValidation, SkipsEmpt
     }
 
     /**
+     * Cari supplier berdasarkan kode supplier (SPL-0001) dari kolom 'supplier'.
+     */
+    protected function resolveSupplier($value): ?int
+    {
+        if (! $value || trim((string) $value) === '') {
+            return null;
+        }
+
+        $val = trim((string) $value);
+
+        // Coba cocokkan sebagai kode supplier
+        $supplier = \App\Models\Supplier::where('kode', $val)->first();
+
+        if ($supplier) {
+            return $supplier->id;
+        }
+
+        // Coba cocokkan sebagai nama supplier
+        $supplier = \App\Models\Supplier::where('nama', $val)->first();
+
+        return $supplier?->id;
+    }
+
+    /**
      * Konversi nilai tanggal (serial Excel, DD-MM-YYYY, atau YYYY-MM-DD) menjadi Y-m-d.
      */
     protected function parseDate($value): ?string
@@ -108,6 +132,7 @@ class ProdukImport implements ToModel, WithHeadingRow, WithValidation, SkipsEmpt
             'tanggal_expired' => $this->parseDate($row['tanggal_expired'] ?? null),
             'ppn' => $num($row['ppn'] ?? null),
             'store_id' => $this->storeId,
+            'supplier_id' => $this->resolveSupplier($row['supplier'] ?? null),
         ]);
     }
 

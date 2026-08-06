@@ -17,6 +17,7 @@ import { toast } from '@/components/ui/sonner'
 
 const props = defineProps({
     open: { type: Boolean, default: false },
+    suppliers: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['update:open'])
@@ -34,6 +35,7 @@ const form = useForm({
     stok_minimum: 0,
     tanggal_expired: '',
     ppn: 0,
+    supplier_id: '',
 })
 
 const resetForm = () => {
@@ -42,6 +44,7 @@ const resetForm = () => {
     form.stok = 0
     form.stok_minimum = 0
     form.ppn = 0
+    form.supplier_id = ''
     form.clearErrors()
 }
 
@@ -125,6 +128,20 @@ const submit = () => {
                             <div class="grid gap-2 sm:col-span-2">
                                 <Label htmlFor="no_rak">No Rak</Label>
                                 <Input id="no_rak" v-model="form.no_rak" placeholder="Lokasi rak / gudang" />
+                            </div>
+                            <div class="grid gap-2 sm:col-span-2">
+                                <Label htmlFor="supplier_id">Supplier</Label>
+                                <select
+                                    id="supplier_id"
+                                    v-model="form.supplier_id"
+                                    class="border-input bg-background hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-ring/50 flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    <option value="">— Pilih Supplier —</option>
+                                    <option v-for="s in suppliers" :key="s.id" :value="s.id">
+                                        {{ s.kode }} — {{ s.nama }}
+                                    </option>
+                                </select>
+                                <p v-if="form.errors.supplier_id" class="text-destructive text-xs">{{ form.errors.supplier_id }}</p>
                             </div>
                         </div>
                     </section>

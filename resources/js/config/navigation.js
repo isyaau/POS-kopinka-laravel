@@ -13,6 +13,7 @@ import {
     Shield,
     Truck,
     Database,
+    Ticket,
 } from 'lucide-vue-next'
 
 export const navigation = [
@@ -28,7 +29,8 @@ export const navigation = [
             { title: 'Kasir / POS', href: '/pos', icon: ShoppingCart, permission: 'transaksi.view' },
             { title: 'Transaksi', href: '/transaksi', icon: ClipboardList, permission: 'transaksi.view' },
             { title: 'Produk', href: '/produk', icon: Package, permission: 'produk.view' },
-            { title: 'Stok', href: '/stok', icon: Boxes, permission: 'produk.view' },
+            { title: 'Stok', href: '/stok', icon: Boxes, permission: 'stok.view' },
+            { title: 'Voucher', href: '/voucher', icon: Ticket, permission: 'voucher.view' },
         ],
     },
     {

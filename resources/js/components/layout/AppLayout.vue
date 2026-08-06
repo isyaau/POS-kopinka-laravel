@@ -18,7 +18,7 @@ const collapsed = ref(false)
 const mobileOpen = ref(false)
 
 const props = defineProps({
-    contentFill: { type: Boolean, default: true },
+    contentFill: { type: Boolean, default: false },
 })
 
 const toggleCollapse = () => {
@@ -75,13 +75,17 @@ watch(
                 :on-toggle-collapse="toggleCollapse"
                 :collapsed="collapsed"
             />
-            <main class="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 md:p-4 lg:p-5">
+            <main
+                class="flex min-h-0 flex-1 flex-col overflow-y-auto"
+                :class="props.contentFill ? 'p-0' : 'px-4 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6'"
+            >
                 <div class="flex min-h-0 flex-1 flex-col">
                     <slot />
                 </div>
             </main>
             <footer
-                class="text-muted-foreground flex shrink-0 flex-col gap-1 border-t bg-background px-3 py-3 text-[11px] sm:flex-row sm:items-center sm:justify-between md:px-4 lg:px-5"
+                v-if="!props.contentFill"
+                class="text-muted-foreground flex shrink-0 flex-col gap-1 border-t bg-background px-4 py-3 text-[11px] sm:flex-row sm:items-center sm:justify-between md:px-6 lg:px-8"
             >
                 <p class="flex items-center gap-1.5">
                     <Coffee class="size-3" />

@@ -26,6 +26,7 @@ class Produk extends Model
         'tanggal_expired',
         'ppn',
         'store_id',
+        'supplier_id',
     ];
 
     protected function casts(): array
@@ -42,6 +43,16 @@ class Produk extends Model
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function stokRiwayat(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StokRiwayat::class);
     }
 
     /**
@@ -73,5 +84,39 @@ class Produk extends Model
     public function hargaFinal(): float
     {
         return (float) $this->harga_jual - (float) $this->diskon;
+    }
+
+    /**
+     * Tambah stok + catat riwayat stok (tipe: masuk).
+     */
+    public function tambahStok(int $qty, ?string $keterangan = null, ?int $storeId = null): void
+    {
+        $this->increment('stok', $qty);
+
+        StokRiwayat::create([
+            'produk_id' => $this->id,
+            'tipe' => 'masuk',
+            'qty' => $qty,
+            'tanggal' => now()->toDateString(),
+            'keterangan' => $keterangan,
+            'store_id' => $storeId ?? $this->store_id,
+        ]);
+    }
+
+    /**
+     * Kurangi stok + catat riwayat stok (tipe: keluar).
+     */
+    public function kurangiStok(int $qty, ?string $keterangan = null, ?int $storeId = null): void
+    {
+        $this->decrement('stok', $qty);
+
+        StokRiwayat::create([
+            'produk_id' => $this->id,
+            'tipe' => 'keluar',
+            'qty' => $qty,
+            'tanggal' => now()->toDateString(),
+            'keterangan' => $keterangan,
+            'store_id' => $storeId ?? $this->store_id,
+        ]);
     }
 }

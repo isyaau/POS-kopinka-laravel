@@ -26,6 +26,12 @@ class RolePermissionSeeder extends Seeder
             'produk.export', 'produk.import',
             // Transaksi
             'transaksi.view', 'transaksi.create', 'transaksi.update', 'transaksi.delete',
+            'transaksi.export', 'transaksi.import',
+            // Stok
+            'stok.view',
+            // Voucher (kupon + barcode)
+            'voucher.view', 'voucher.create', 'voucher.update', 'voucher.delete',
+            'voucher.export', 'voucher.import',
             // Laporan
             'laporan.view',
             // Anggota
@@ -57,6 +63,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'produk.view', 'produk.create', 'produk.update',
             'transaksi.view', 'transaksi.create',
+            'stok.view',
             'anggota.view',
         ]);
 
@@ -69,6 +76,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'produk.view', 'produk.create', 'produk.update', 'produk.delete',
             'transaksi.view', 'transaksi.create', 'transaksi.update', 'transaksi.delete',
+            'stok.view',
             'laporan.view',
             'anggota.view', 'anggota.create', 'anggota.update',
             'supplier.view', 'supplier.create', 'supplier.update', 'supplier.import',
@@ -88,6 +96,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'produk.view', 'produk.create', 'produk.update', 'produk.delete',
             'transaksi.view', 'transaksi.create', 'transaksi.update',
+            'stok.view',
             'anggota.view', 'anggota.create', 'anggota.update',
             'supplier.view', 'supplier.create', 'supplier.update', 'supplier.import',
         ]);

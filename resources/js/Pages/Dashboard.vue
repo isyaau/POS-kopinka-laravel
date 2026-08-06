@@ -169,7 +169,7 @@ const hasAnggota = computed(() => totalAnggota.value > 0 || totalKaryawan.value 
         </div>
 
         <!-- ===== Grafik Statistik Anggota & Karyawan ===== -->
-        <div v-if="hasAnggota" class="mb-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div v-if="hasAnggota" class="mb-3 grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[repeat(2,minmax(0,1fr))]">
             <!-- Anggota donut -->
             <Card>
                 <CardHeader>

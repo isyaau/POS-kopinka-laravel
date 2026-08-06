@@ -64,6 +64,7 @@ const sections = computed(() => [
             { label: 'Kategori', value: p.value.kategori || '-' },
             { label: 'Satuan', value: p.value.satuan || '-' },
             { label: 'No Rak', value: p.value.no_rak || '-' },
+            { label: 'Supplier', value: p.value.supplier?.nama || '-', full: true },
         ],
     },
     {

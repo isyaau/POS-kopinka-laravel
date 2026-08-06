@@ -16,43 +16,44 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Pagination } from '@/components/ui/pagination'
-import CreateProdukModal from './CreateProdukModal.vue'
-import EditProdukModal from './EditProdukModal.vue'
-import DeleteProdukModal from './DeleteProdukModal.vue'
-import ImportProdukModal from './ImportProdukModal.vue'
-import DetailProdukModal from './DetailProdukModal.vue'
+import CreateTransaksiModal from './CreateTransaksiModal.vue'
+import EditTransaksiModal from './EditTransaksiModal.vue'
+import DeleteTransaksiModal from './DeleteTransaksiModal.vue'
+import ImportTransaksiModal from './ImportTransaksiModal.vue'
+import DetailTransaksiModal from './DetailTransaksiModal.vue'
 import {
     Search,
-    Package,
+    ClipboardList,
     MoreHorizontal,
     Pencil,
     Trash2,
-    UserPlus,
+    Plus,
     X,
     Download,
     Upload,
     FileSpreadsheet,
     Eye,
-    AlertTriangle,
+    Printer,
 } from 'lucide-vue-next'
+import { printStruk } from '@/lib/struk'
 
 const props = defineProps({
-    produk: { type: Object, default: () => ({ data: [] }) },
-    suppliers: { type: Array, default: () => [] },
+    transaksi: { type: Object, default: () => ({ data: [] }) },
+    anggota: { type: Array, default: () => [] },
+    produk: { type: Array, default: () => [] },
     filters: { type: Object, default: () => ({}) },
 })
 
 const createOpen = ref(false)
 const editOpen = ref(false)
-const editingProduk = ref(null)
+const editingTransaksi = ref(null)
 const deleteOpen = ref(false)
-const deletingProduk = ref(null)
+const deletingTransaksi = ref(null)
 const importOpen = ref(false)
 const detailOpen = ref(false)
-const selectedProduk = ref(null)
+const selectedTransaksi = ref(null)
 const search = ref(props.filters.search || '')
 
-// Format Rupiah
 const formatRupiah = (val) => {
     const n = Number(val || 0)
     return new Intl.NumberFormat('id-ID', {
@@ -62,7 +63,6 @@ const formatRupiah = (val) => {
     }).format(n)
 }
 
-// Format tanggal DD-MM-YYYY
 const formatDate = (val) => {
     if (!val) return '-'
     const d = new Date(val)
@@ -73,27 +73,23 @@ const formatDate = (val) => {
     return `${day}-${month}-${year}`
 }
 
-// Live search dengan debounce
 let searchTimer = null
 const onSearchInput = () => {
     clearTimeout(searchTimer)
     searchTimer = setTimeout(() => {
-        router.get('/produk', {
-            search: search.value,
-        }, { preserveState: true, replace: true })
+        router.get('/transaksi', { search: search.value }, { preserveState: true, replace: true })
     }, 400)
 }
 
 const resetSearch = () => {
     search.value = ''
-    router.get('/produk', {}, { preserveState: true, replace: true })
+    router.get('/transaksi', {}, { preserveState: true, replace: true })
 }
 
 const handleExport = () => {
     const params = new URLSearchParams()
     if (search.value) params.set('search', search.value)
-
-    window.location.href = `/produk/export?${params.toString()}`
+    window.location.href = `/transaksi/export?${params.toString()}`
 }
 
 const openCreate = () => {
@@ -101,23 +97,42 @@ const openCreate = () => {
 }
 
 const openDetail = (item) => {
-    selectedProduk.value = item
+    selectedTransaksi.value = item
     detailOpen.value = true
 }
 
+const cetakStruk = (item) => {
+    printStruk({
+        no_nota: item.no_nota,
+        no_kasir: item.no_kasir,
+        tanggal: item.tanggal,
+        nama_anggota: item.nama_anggota,
+        anggota_id: item.anggota_id,
+        items: item.details || [],
+        nilai: item.nilai,
+        diskon: item.diskon,
+        jual: item.jual,
+        cash: item.cash,
+        qris: item.qris,
+        edc: item.edc,
+        voucher: item.voucher,
+        piutang: item.piutang,
+    })
+}
+
 const openEdit = (item) => {
-    editingProduk.value = item
+    editingTransaksi.value = item
     editOpen.value = true
 }
 
 const confirmDelete = (item) => {
-    deletingProduk.value = item
+    deletingTransaksi.value = item
     deleteOpen.value = true
 }
 
-const items = computed(() => props.produk?.data || [])
+const items = computed(() => props.transaksi?.data || [])
 const pagination = computed(() => {
-    const a = props.produk || {}
+    const a = props.transaksi || {}
     return {
         current: a.current_page || 1,
         last: a.last_page || 1,
@@ -131,14 +146,15 @@ const activeQuery = computed(() => ({
     search: search.value,
 }))
 
-const lowStock = (p) => p.stok <= p.stok_minimum
+const totalPembayaran = (t) =>
+    Number(t.cash || 0) + Number(t.qris || 0) + Number(t.edc || 0) + Number(t.voucher || 0) + Number(t.piutang || 0)
 </script>
 
 <template>
     <AppLayout>
-        <Head title="Persediaan Produk - Kopinka" />
+        <Head title="Transaksi - Kopinka" />
 
-        <PageHeader title="Persediaan Produk" description="Kelola data barang dan stok per toko.">
+        <PageHeader title="Transaksi" description="Kelola data transaksi penjualan per nota.">
             <template #actions>
                 <div class="flex items-center gap-2">
                     <DropdownMenu>
@@ -160,8 +176,8 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                         Import
                     </Button>
                     <Button @click="openCreate">
-                        <UserPlus class="size-4" />
-                        Tambah Produk
+                        <Plus class="size-4" />
+                        Tambah Transaksi
                     </Button>
                 </div>
             </template>
@@ -175,7 +191,7 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                         <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                         <Input
                             v-model="search"
-                            placeholder="Cari kode, nama, kategori... (ketik langsung)"
+                            placeholder="Cari nota, anggota, kasir... (ketik langsung)"
                             class="pl-9"
                             @input="onSearchInput"
                         />
@@ -189,7 +205,7 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                         </button>
                     </div>
                     <p class="text-muted-foreground text-sm">
-                        {{ pagination.total }} produk
+                        {{ pagination.total }} transaksi
                     </p>
                 </div>
             </CardContent>
@@ -198,62 +214,64 @@ const lowStock = (p) => p.stok <= p.stok_minimum
             <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <template v-if="items.length">
                     <div class="min-h-0 flex-1 overflow-auto overscroll-contain">
-                        <table class="w-full min-w-[1100px] border-separate border-spacing-0 text-sm">
+                        <table class="w-full min-w-[1400px] border-separate border-spacing-0 text-sm">
                             <thead class="sticky top-0 z-10">
                                 <tr>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">ID</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Kode Barang</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Nama Barang</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Kategori</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Satuan</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Supplier</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Rak</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Harga Beli</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Harga Jual</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Diskon</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Stok</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Stok Min</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Expired</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">PPN</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Aksi</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-left text-xs font-semibold uppercase">NO KASIR</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-left text-xs font-semibold uppercase">NOTA</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-left text-xs font-semibold uppercase">ID.AGT</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-left text-xs font-semibold uppercase">NAMA ANGGOTA</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">NILAI</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">DISKON</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">JUAL</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">USAHA</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">JASA</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">PPN.K</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">CASH</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">QRIS</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">EDC</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">VOUCHER</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">PIUTANG</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-left text-xs font-semibold uppercase">TGL</th>
+                                    <th class="bg-muted text-muted-foreground border-b px-3 py-3 text-right text-xs font-semibold uppercase">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="item in items" :key="item.id" class="hover:bg-muted/40 transition-colors">
-                                    <td class="text-muted-foreground border-b px-4 py-3">{{ item.id }}</td>
-                                    <td class="border-b px-4 py-3">
+                                    <td class="border-b px-3 py-3">{{ item.no_kasir || '-' }}</td>
+                                    <td class="border-b px-3 py-3">
                                         <span class="bg-primary/10 text-primary inline-block rounded-md px-2 py-0.5 text-xs font-semibold">
-                                            {{ item.kode_barang }}
+                                            {{ item.no_nota }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3">
+                                    <td class="text-muted-foreground border-b px-3 py-3">{{ item.anggota_id ?? '-' }}</td>
+                                    <td class="border-b px-3 py-3">
                                         <div class="flex items-center gap-2.5">
                                             <div class="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase">
-                                                {{ (item.nama_barang || '?').charAt(0) }}
+                                                {{ (item.nama_anggota || '?').charAt(0) }}
                                             </div>
-                                            <p class="font-medium truncate">{{ item.nama_barang }}</p>
+                                            <p class="font-medium truncate">{{ item.nama_anggota || '-' }}</p>
                                         </div>
                                     </td>
-                                    <td class="border-b px-4 py-3">{{ item.kategori || '-' }}</td>
-                                    <td class="border-b px-4 py-3">{{ item.satuan || '-' }}</td>
-                                    <td class="border-b px-4 py-3">{{ item.supplier?.nama || '-' }}</td>
-                                    <td class="border-b px-4 py-3">{{ item.no_rak || '-' }}</td>
-                                    <td class="border-b px-4 py-3 text-right">{{ formatRupiah(item.harga_beli) }}</td>
-                                    <td class="border-b px-4 py-3 text-right font-medium">{{ formatRupiah(item.harga_jual) }}</td>
-                                    <td class="border-b px-4 py-3 text-right">
+                                    <td class="border-b px-3 py-3 text-right font-medium">{{ formatRupiah(item.nilai) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">
                                         <span v-if="item.diskon > 0" class="text-destructive font-medium">{{ formatRupiah(item.diskon) }}</span>
                                         <span v-else class="text-muted-foreground">-</span>
                                     </td>
-                                    <td class="border-b px-4 py-3 text-right">
-                                        <Badge :variant="lowStock(item) ? 'warning' : 'success'">
-                                            <AlertTriangle v-if="lowStock(item)" class="size-3" />
-                                            {{ item.stok }}
-                                        </Badge>
+                                    <td class="border-b px-3 py-3 text-right font-semibold">{{ formatRupiah(item.jual) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">{{ formatRupiah(item.usaha) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">{{ formatRupiah(item.jasa) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">{{ formatRupiah(item.ppn) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">{{ formatRupiah(item.cash) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">{{ formatRupiah(item.qris) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">{{ formatRupiah(item.edc) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">{{ formatRupiah(item.voucher) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">
+                                        <span v-if="item.piutang > 0" class="text-destructive font-medium">{{ formatRupiah(item.piutang) }}</span>
+                                        <span v-else class="text-muted-foreground">-</span>
                                     </td>
-                                    <td class="border-b px-4 py-3 text-right">{{ item.stok_minimum }}</td>
-                                    <td class="border-b px-4 py-3">{{ formatDate(item.tanggal_expired) }}</td>
-                                    <td class="border-b px-4 py-3 text-right">{{ item.ppn }}%</td>
-                                    <td class="border-b px-4 py-3 text-right">
+                                    <td class="border-b px-3 py-3">{{ formatDate(item.tanggal) }}</td>
+                                    <td class="border-b px-3 py-3 text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger as-child>
                                                 <Button variant="ghost" size="icon" class="size-8">
@@ -263,9 +281,13 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" class="w-44">
                                                 <DropdownMenuLabel class="text-muted-foreground text-xs">
-                                                    {{ item.nama_barang }}
+                                                    {{ item.no_nota }}
                                                 </DropdownMenuLabel>
                                                 <DropdownMenuSeparator />
+                                                <DropdownMenuItem @click="cetakStruk(item)">
+                                                    <Printer class="size-4" />
+                                                    Cetak Ulang
+                                                </DropdownMenuItem>
                                                 <DropdownMenuItem @click="openDetail(item)">
                                                     <Eye class="size-4" />
                                                     Detail
@@ -290,12 +312,12 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                 <!-- Empty state -->
                 <div v-else class="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
                     <div class="bg-muted flex size-14 items-center justify-center rounded-full">
-                        <Package class="text-muted-foreground size-7" />
+                        <ClipboardList class="text-muted-foreground size-7" />
                     </div>
                     <div>
-                        <p class="font-semibold">Belum ada data produk</p>
+                        <p class="font-semibold">Belum ada data transaksi</p>
                         <p class="text-muted-foreground text-sm">
-                            Klik "Tambah Produk" untuk menambahkan data pertama.
+                            Klik "Tambah Transaksi" untuk menambahkan data pertama.
                         </p>
                     </div>
                 </div>
@@ -309,15 +331,26 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                 :from="pagination.from"
                 :to="pagination.to"
                 :limit="Number(props.filters.limit || 10)"
-                :base-url="'/produk'"
+                :base-url="'/transaksi'"
                 :query="activeQuery"
             />
         </Card>
 
-        <CreateProdukModal :open="createOpen" :suppliers="props.suppliers" @update:open="createOpen = $event" />
-        <EditProdukModal :open="editOpen" :produk="editingProduk" :suppliers="props.suppliers" @update:open="editOpen = $event" />
-        <DeleteProdukModal :open="deleteOpen" :produk="deletingProduk" @update:open="deleteOpen = $event" />
-        <ImportProdukModal :open="importOpen" @update:open="importOpen = $event" />
-        <DetailProdukModal :open="detailOpen" :produk="selectedProduk" @update:open="detailOpen = $event" />
+        <CreateTransaksiModal
+            :open="createOpen"
+            :anggota="props.anggota"
+            :produk="props.produk"
+            @update:open="createOpen = $event"
+        />
+        <EditTransaksiModal
+            :open="editOpen"
+            :transaksi="editingTransaksi"
+            :anggota="props.anggota"
+            :produk="props.produk"
+            @update:open="editOpen = $event"
+        />
+        <DeleteTransaksiModal :open="deleteOpen" :transaksi="deletingTransaksi" @update:open="deleteOpen = $event" />
+        <ImportTransaksiModal :open="importOpen" @update:open="importOpen = $event" />
+        <DetailTransaksiModal :open="detailOpen" :transaksi="selectedTransaksi" @update:open="detailOpen = $event" />
     </AppLayout>
 </template>

@@ -30,6 +30,7 @@ class StoreProdukRequest extends FormRequest
             'stok_minimum' => ['nullable', 'integer', 'min:0'],
             'tanggal_expired' => ['nullable', 'date'],
             'ppn' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
         ];
     }
 

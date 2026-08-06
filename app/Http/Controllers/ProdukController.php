@@ -29,7 +29,7 @@ class ProdukController extends Controller
         $limit = in_array($limit, [10, 25, 50, 100]) ? $limit : 10;
 
         $query = Produk::query()
-            ->with('store')
+            ->with(['store', 'supplier'])
             ->orderByDesc('created_at');
 
         // Scope ke toko aktif (kecuali 'all' / pusat)
@@ -49,6 +49,7 @@ class ProdukController extends Controller
 
         return Inertia::render('Produk/Index', [
             'produk' => $produk,
+            'suppliers' => \App\Models\Supplier::orderBy('nama')->get(['id', 'kode', 'nama']),
             'filters' => [
                 'search' => $request->input('search', ''),
                 'limit' => $limit,
