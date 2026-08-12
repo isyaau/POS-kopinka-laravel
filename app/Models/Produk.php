@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Produk extends Model
 {
+    use SoftDeletes;
+
     /**
      * Nama tabel eksplisit (hindari pluralisasi default menjadi "produks").
      */
@@ -36,7 +39,9 @@ class Produk extends Model
             'harga_beli' => 'decimal:2',
             'harga_jual' => 'decimal:2',
             'diskon' => 'decimal:2',
-            'ppn' => 'decimal:2',
+            // PPN adalah persentase (bukan uang) — tampil sebagai angka bulat,
+            // tanpa 2 desimal di belakang koma.
+            'ppn' => 'integer',
         ];
     }
 
@@ -56,18 +61,21 @@ class Produk extends Model
     }
 
     /**
-     * Auto-generate kode barang jika kosong: BRK-0001, BRK-0002, dst.
+     * Auto-generate kode barang (barcode) jika kosong: 000001, 000002, dst.
+     *
+     * Hanya angka (digit) agar kompatibel dengan barcode scanner.
+     * Urutan dihitung dari kode numerik terbesar yang sudah ada.
      */
     public function generateKode(): string
     {
-        $prefix = 'BRK';
-        $last = static::where('kode_barang', 'like', $prefix . '-%')
-            ->orderByDesc('kode_barang')
+        $last = static::withTrashed()
+            ->where('kode_barang', '~', '^[0-9]+$')
+            ->orderByRaw('CAST(kode_barang AS BIGINT) DESC')
             ->value('kode_barang');
 
-        $next = $last ? ((int) substr($last, strlen($prefix) + 1)) + 1 : 1;
+        $next = $last !== null ? ((int) $last) + 1 : 1;
 
-        return sprintf('%s-%04d', $prefix, $next);
+        return sprintf('%06d', $next);
     }
 
     /**

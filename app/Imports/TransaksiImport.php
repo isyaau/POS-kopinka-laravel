@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Anggota;
 use App\Models\Produk;
+use App\Models\Store;
 use App\Models\Transaksi;
 use App\Models\TransaksiDetail;
 use Carbon\Carbon;
@@ -31,6 +32,14 @@ class TransaksiImport implements ToModel, WithHeadingRow, WithValidation, SkipsE
     public function __construct(?int $storeId = null)
     {
         $this->storeId = $storeId;
+    }
+
+    /**
+     * Store tujuan import (untuk kode di no nota).
+     */
+    protected function resolveStore(): ?Store
+    {
+        return $this->storeId ? Store::find($this->storeId) : null;
     }
 
     /**
@@ -88,7 +97,7 @@ class TransaksiImport implements ToModel, WithHeadingRow, WithValidation, SkipsE
 
         // Auto-generate no nota bila kosong
         if ($noNota === '') {
-            $noNota = (new Transaksi())->generateNoNota();
+            $noNota = (new Transaksi())->generateNoNota($this->resolveStore());
         }
 
         // Lewati baris jika no nota sudah ada

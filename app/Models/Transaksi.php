@@ -64,17 +64,22 @@ class Transaksi extends Model
     }
 
     /**
-     * Auto-generate no nota: TRX-YYYYMMDD-0001.
+     * Auto-generate no nota: TRX{KODE_TOKO}{YYYYMMDD}{0001}.
+     *
+     * Urutan dihitung per toko per hari. Bila $store null (mis. mode
+     * "Semua Toko"), kode fallback "ALL" dipakai.
      */
-    public function generateNoNota(): string
+    public function generateNoNota(?Store $store = null): string
     {
-        $prefix = 'TRX-' . now()->format('Ymd');
-        $last = static::where('no_nota', 'like', $prefix . '-%')
+        $kode = $store?->kode ? strtoupper(preg_replace('/[^A-Z0-9]/', '', $store->kode)) : 'ALL';
+        $prefix = 'TRX' . $kode . now()->format('Ymd');
+
+        $last = static::where('no_nota', 'like', $prefix . '%')
             ->orderByDesc('no_nota')
             ->value('no_nota');
 
-        $next = $last ? ((int) substr($last, strlen($prefix) + 1)) + 1 : 1;
+        $next = $last ? ((int) substr($last, strlen($prefix))) + 1 : 1;
 
-        return sprintf('%s-%04d', $prefix, $next);
+        return sprintf('%s%04d', $prefix, $next);
     }
 }

@@ -10,12 +10,12 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Loader2, Archive, AlertTriangle } from 'lucide-vue-next'
+import { Loader2, Trash2, AlertTriangle } from 'lucide-vue-next'
 import { toast } from '@/components/ui/sonner'
 
 const props = defineProps({
     open: { type: Boolean, default: false },
-    supplier: { type: Object, default: null },
+    retur: { type: Object, default: null },
 })
 
 const emit = defineEmits(['update:open'])
@@ -31,12 +31,12 @@ watch(
 )
 
 const submit = () => {
-    if (!props.supplier) return
-    deleteForm.delete(`/suppliers/${props.supplier.id}`, {
+    if (!props.retur) return
+    deleteForm.delete(`/retur-pembelian/${props.retur.id}`, {
         preserveScroll: true,
         onSuccess: () => {
             emit('update:open', false)
-            toast.success('Supplier berhasil dihapus.')
+            toast.success('Retur berhasil dihapus dan stok dikembalikan.')
         },
     })
 }
@@ -54,14 +54,13 @@ const submit = () => {
                         <AlertTriangle class="size-5" />
                     </div>
                     <div class="min-w-0">
-                        <DialogTitle class="text-lg font-bold">Arsipkan Supplier?</DialogTitle>
+                        <DialogTitle class="text-lg font-bold">Hapus Retur?</DialogTitle>
                         <DialogDescription class="text-muted-foreground mt-1 text-sm leading-relaxed">
-                            Arsipkan
-                            <span class="text-foreground font-semibold">{{ supplier?.nama || 'supplier ini' }}</span>
-                            ({{ supplier?.kode || '-' }})?
+                            Anda yakin ingin menghapus
+                            <span class="text-foreground font-semibold">{{ retur?.no_retur || 'retur ini' }}</span>?
                             <br />
-                            Supplier akan hilang dari daftar aktif, tetapi masih bisa
-                            <span class="text-foreground font-semibold">dipulihkan</span> dari tab Arsip.
+                            Stok produk yang diretur akan <span class="text-destructive font-semibold">dikembalikan</span>
+                            (ditambah) dan data tidak dapat dipulihkan.
                         </DialogDescription>
                     </div>
                 </div>
@@ -83,8 +82,8 @@ const submit = () => {
                     @click="submit"
                 >
                     <Loader2 v-if="deleteForm.processing" class="size-4 animate-spin" />
-                    <Archive v-else class="size-4" />
-                    {{ deleteForm.processing ? 'Mengarsipkan...' : 'Ya, Arsipkan' }}
+                    <Trash2 v-else class="size-4" />
+                    {{ deleteForm.processing ? 'Menghapus...' : 'Ya, Hapus' }}
                 </Button>
             </DialogFooter>
         </DialogContent>

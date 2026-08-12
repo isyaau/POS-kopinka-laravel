@@ -20,6 +20,7 @@ import EditSupplierModal from './EditSupplierModal.vue'
 import DeleteSupplierModal from './DeleteSupplierModal.vue'
 import ImportSupplierModal from './ImportSupplierModal.vue'
 import SupplierDetailModal from './SupplierDetailModal.vue'
+import { toast } from '@/components/ui/sonner'
 import {
     Search,
     Truck,
@@ -32,6 +33,8 @@ import {
     Upload,
     FileSpreadsheet,
     Eye,
+    Archive,
+    ArchiveRestore,
 } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -48,6 +51,7 @@ const importOpen = ref(false)
 const detailOpen = ref(false)
 const selectedSupplier = ref(null)
 const search = ref(props.filters.search || '')
+const tab = ref(props.filters.tab || 'aktif')
 
 // Live search dengan debounce
 let searchTimer = null
@@ -62,7 +66,24 @@ const onSearchInput = () => {
 
 const resetSearch = () => {
     search.value = ''
-    router.get('/suppliers', {}, { preserveState: true, replace: true })
+    router.get('/suppliers', { tab: tab.value }, { preserveState: true, replace: true })
+}
+
+// Ganti tab: aktif / arsip / semua
+const setTab = (t) => {
+    tab.value = t
+    router.get('/suppliers', { tab: t, search: search.value }, { preserveState: true, replace: true })
+}
+
+// Pulihkan supplier dari arsip
+const restoreSupplier = (item) => {
+    if (!confirm(`Pulihkan supplier "${item.nama}"?`)) return
+    router.post(`/suppliers/${item.id}/restore`, {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast.success('Supplier berhasil dipulihkan.')
+        },
+    })
 }
 
 const handleExport = () => {
@@ -105,6 +126,7 @@ const pagination = computed(() => {
 
 const activeQuery = computed(() => ({
     search: search.value,
+    tab: tab.value,
 }))
 </script>
 
@@ -145,22 +167,45 @@ const activeQuery = computed(() => ({
             <!-- Filter & Search bar -->
             <CardContent class="border-b py-4">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                    <div class="relative w-full lg:max-w-xs">
-                        <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                        <Input
-                            v-model="search"
-                            placeholder="Cari kode, nama, kontak... (ketik langsung)"
-                            class="pl-9"
-                            @input="onSearchInput"
-                        />
-                        <button
-                            v-if="search"
-                            class="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2"
-                            aria-label="Hapus pencarian"
-                            @click="resetSearch"
-                        >
-                            <X class="size-4" />
-                        </button>
+                    <div class="flex flex-col gap-3">
+                        <!-- Tab Aktif / Arsip / Semua -->
+                        <div class="bg-muted inline-flex w-fit rounded-lg p-1">
+                            <button
+                                v-for="t in [
+                                    { key: 'aktif', label: 'Aktif' },
+                                    { key: 'arsip', label: 'Arsip' },
+                                    { key: 'semua', label: 'Semua' },
+                                ]"
+                                :key="t.key"
+                                type="button"
+                                class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+                                :class="
+                                    tab === t.key
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                "
+                                @click="setTab(t.key)"
+                            >
+                                {{ t.label }}
+                            </button>
+                        </div>
+                        <div class="relative w-full lg:w-80">
+                            <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                            <Input
+                                v-model="search"
+                                placeholder="Cari kode, nama, kontak... (ketik langsung)"
+                                class="pl-9"
+                                @input="onSearchInput"
+                            />
+                            <button
+                                v-if="search"
+                                class="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2"
+                                aria-label="Hapus pencarian"
+                                @click="resetSearch"
+                            >
+                                <X class="size-4" />
+                            </button>
+                        </div>
                     </div>
                     <p class="text-muted-foreground text-sm">
                         {{ pagination.total }} supplier
@@ -229,8 +274,12 @@ const activeQuery = computed(() => ({
                                                     Edit
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem variant="destructive" @click="confirmDelete(item)">
-                                                    <Trash2 class="size-4" />
-                                                    Hapus
+                                                    <Archive class="size-4" />
+                                                    Arsipkan
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem v-if="item.deleted_at" @click="restoreSupplier(item)">
+                                                    <ArchiveRestore class="size-4" />
+                                                    Pulihkan
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -249,7 +298,7 @@ const activeQuery = computed(() => ({
                     <div>
                         <p class="font-semibold">Belum ada data supplier</p>
                         <p class="text-muted-foreground text-sm">
-                            Klik "Tambah Supplier" untuk menambahkan data pertama.
+                            {{ tab === 'arsip' ? 'Tidak ada supplier yang diarsipkan.' : 'Klik "Tambah Supplier" untuk menambahkan data pertama.' }}
                         </p>
                     </div>
                 </div>

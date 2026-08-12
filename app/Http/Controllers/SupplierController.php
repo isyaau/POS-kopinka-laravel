@@ -28,9 +28,19 @@ class SupplierController extends Controller
         $limit = (int) $request->input('limit', 10);
         $limit = in_array($limit, [10, 25, 50, 100]) ? $limit : 10;
 
+        // Filter tab: aktif (default), arsip, semua
+        $tab = $request->input('tab', 'aktif');
+        $tab = in_array($tab, ['aktif', 'arsip', 'semua']) ? $tab : 'aktif';
+
         $query = Supplier::query()
             ->with('store')
             ->orderByDesc('created_at');
+
+        if ($tab === 'arsip') {
+            $query->onlyTrashed();
+        } elseif ($tab === 'aktif') {
+            $query->whereNull('deleted_at');
+        }
 
         // Scope ke toko aktif (kecuali 'all' / pusat)
         if ($storeId && $storeId !== 'all') {
@@ -53,6 +63,7 @@ class SupplierController extends Controller
             'filters' => [
                 'search' => $request->input('search', ''),
                 'limit' => $limit,
+                'tab' => $tab,
             ],
         ]);
     }
@@ -85,13 +96,25 @@ class SupplierController extends Controller
     }
 
     /**
-     * Hapus supplier.
+     * Arsipkan (soft delete) supplier — hilang dari listing aktif,
+     * tetapi tetap bisa dikembalikan (restore).
      */
     public function destroy(Supplier $supplier): RedirectResponse
     {
         $supplier->delete();
 
-        return back()->with('success', 'Supplier berhasil dihapus.');
+        return back()->with('success', 'Supplier diarsipkan. Data dapat dipulihkan dari tab Arsip.');
+    }
+
+    /**
+     * Pulihkan supplier yang diarsipkan.
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $supplier = Supplier::withTrashed()->findOrFail($id);
+        $supplier->restore();
+
+        return back()->with('success', 'Supplier berhasil dipulihkan kembali.');
     }
 
     /**

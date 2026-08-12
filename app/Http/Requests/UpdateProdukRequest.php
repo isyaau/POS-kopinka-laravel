@@ -41,6 +41,13 @@ class UpdateProdukRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $kode = trim($this->input('kode_barang') ?? '');
+
+        if ($kode !== '') {
+            // Normalisasi: hanya angka, tanpa spasi/karakter lain, pad ke 6 digit
+            $this->merge(['kode_barang' => str_pad(preg_replace('/\D/', '', $kode), 6, '0', STR_PAD_LEFT)]);
+        }
+
         foreach (['harga_beli', 'harga_jual', 'diskon', 'stok', 'stok_minimum', 'ppn'] as $field) {
             $value = $this->input($field);
             if ($value === null || $value === '') {

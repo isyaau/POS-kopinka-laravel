@@ -21,6 +21,7 @@ import EditProdukModal from './EditProdukModal.vue'
 import DeleteProdukModal from './DeleteProdukModal.vue'
 import ImportProdukModal from './ImportProdukModal.vue'
 import DetailProdukModal from './DetailProdukModal.vue'
+import { toast } from '@/components/ui/sonner'
 import {
     Search,
     Package,
@@ -34,6 +35,8 @@ import {
     FileSpreadsheet,
     Eye,
     AlertTriangle,
+    Archive,
+    ArchiveRestore,
 } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -51,6 +54,7 @@ const importOpen = ref(false)
 const detailOpen = ref(false)
 const selectedProduk = ref(null)
 const search = ref(props.filters.search || '')
+const tab = ref(props.filters.tab || 'aktif')
 
 // Format Rupiah
 const formatRupiah = (val) => {
@@ -86,7 +90,24 @@ const onSearchInput = () => {
 
 const resetSearch = () => {
     search.value = ''
-    router.get('/produk', {}, { preserveState: true, replace: true })
+    router.get('/produk', { tab: tab.value }, { preserveState: true, replace: true })
+}
+
+// Ganti tab: aktif / arsip / semua
+const setTab = (t) => {
+    tab.value = t
+    router.get('/produk', { tab: t, search: search.value }, { preserveState: true, replace: true })
+}
+
+// Pulihkan produk dari arsip
+const restoreProduk = (item) => {
+    if (!confirm(`Pulihkan produk "${item.nama_barang}"?`)) return
+    router.post(`/produk/${item.id}/restore`, {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast.success('Produk berhasil dipulihkan.')
+        },
+    })
 }
 
 const handleExport = () => {
@@ -129,6 +150,7 @@ const pagination = computed(() => {
 
 const activeQuery = computed(() => ({
     search: search.value,
+    tab: tab.value,
 }))
 
 const lowStock = (p) => p.stok <= p.stok_minimum
@@ -171,22 +193,45 @@ const lowStock = (p) => p.stok <= p.stok_minimum
             <!-- Filter & Search bar -->
             <CardContent class="border-b py-4">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                    <div class="relative w-full lg:max-w-xs">
-                        <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                        <Input
-                            v-model="search"
-                            placeholder="Cari kode, nama, kategori... (ketik langsung)"
-                            class="pl-9"
-                            @input="onSearchInput"
-                        />
-                        <button
-                            v-if="search"
-                            class="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2"
-                            aria-label="Hapus pencarian"
-                            @click="resetSearch"
-                        >
-                            <X class="size-4" />
-                        </button>
+                    <div class="flex flex-col gap-3">
+                        <!-- Tab Aktif / Arsip / Semua -->
+                        <div class="bg-muted inline-flex w-fit rounded-lg p-1">
+                            <button
+                                v-for="t in [
+                                    { key: 'aktif', label: 'Aktif' },
+                                    { key: 'arsip', label: 'Arsip' },
+                                    { key: 'semua', label: 'Semua' },
+                                ]"
+                                :key="t.key"
+                                type="button"
+                                class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+                                :class="
+                                    tab === t.key
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                "
+                                @click="setTab(t.key)"
+                            >
+                                {{ t.label }}
+                            </button>
+                        </div>
+                        <div class="relative w-full lg:w-80">
+                            <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                            <Input
+                                v-model="search"
+                                placeholder="Cari kode, nama, kategori... (ketik langsung)"
+                                class="pl-9"
+                                @input="onSearchInput"
+                            />
+                            <button
+                                v-if="search"
+                                class="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2"
+                                aria-label="Hapus pencarian"
+                                @click="resetSearch"
+                            >
+                                <X class="size-4" />
+                            </button>
+                        </div>
                     </div>
                     <p class="text-muted-foreground text-sm">
                         {{ pagination.total }} produk
@@ -206,8 +251,6 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                                     <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Nama Barang</th>
                                     <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Kategori</th>
                                     <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Satuan</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Supplier</th>
-                                    <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-left text-xs font-semibold uppercase">Rak</th>
                                     <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Harga Beli</th>
                                     <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Harga Jual</th>
                                     <th class="bg-muted text-muted-foreground border-b px-4 py-3 text-right text-xs font-semibold uppercase">Diskon</th>
@@ -226,18 +269,11 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                                             {{ item.kode_barang }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center gap-2.5">
-                                            <div class="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase">
-                                                {{ (item.nama_barang || '?').charAt(0) }}
-                                            </div>
-                                            <p class="font-medium truncate">{{ item.nama_barang }}</p>
-                                        </div>
+                                    <td class="border-b px-4 py-3">
+                                        <p class="font-medium truncate">{{ item.nama_barang }}</p>
                                     </td>
                                     <td class="border-b px-4 py-3">{{ item.kategori || '-' }}</td>
                                     <td class="border-b px-4 py-3">{{ item.satuan || '-' }}</td>
-                                    <td class="border-b px-4 py-3">{{ item.supplier?.nama || '-' }}</td>
-                                    <td class="border-b px-4 py-3">{{ item.no_rak || '-' }}</td>
                                     <td class="border-b px-4 py-3 text-right">{{ formatRupiah(item.harga_beli) }}</td>
                                     <td class="border-b px-4 py-3 text-right font-medium">{{ formatRupiah(item.harga_jual) }}</td>
                                     <td class="border-b px-4 py-3 text-right">
@@ -275,8 +311,12 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                                                     Edit
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem variant="destructive" @click="confirmDelete(item)">
-                                                    <Trash2 class="size-4" />
-                                                    Hapus
+                                                    <Archive class="size-4" />
+                                                    Arsipkan
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem v-if="item.deleted_at" @click="restoreProduk(item)">
+                                                    <ArchiveRestore class="size-4" />
+                                                    Pulihkan
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -295,7 +335,7 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                     <div>
                         <p class="font-semibold">Belum ada data produk</p>
                         <p class="text-muted-foreground text-sm">
-                            Klik "Tambah Produk" untuk menambahkan data pertama.
+                            {{ tab === 'arsip' ? 'Tidak ada produk yang diarsipkan.' : 'Klik "Tambah Produk" untuk menambahkan data pertama.' }}
                         </p>
                     </div>
                 </div>

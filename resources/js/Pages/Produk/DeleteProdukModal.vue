@@ -10,7 +10,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Loader2, Trash2, AlertTriangle } from 'lucide-vue-next'
+import { Loader2, Archive, AlertTriangle } from 'lucide-vue-next'
 import { toast } from '@/components/ui/sonner'
 
 const props = defineProps({
@@ -36,7 +36,7 @@ const submit = () => {
         preserveScroll: true,
         onSuccess: () => {
             emit('update:open', false)
-            toast.success('Produk berhasil dihapus.')
+            toast.success('Produk diarsipkan.')
         },
     })
 }
@@ -54,14 +54,14 @@ const submit = () => {
                         <AlertTriangle class="size-5" />
                     </div>
                     <div class="min-w-0">
-                        <DialogTitle class="text-lg font-bold">Hapus Produk?</DialogTitle>
+                        <DialogTitle class="text-lg font-bold">Arsipkan Produk?</DialogTitle>
                         <DialogDescription class="text-muted-foreground mt-1 text-sm leading-relaxed">
-                            Anda yakin ingin menghapus
+                            Arsipkan
                             <span class="text-foreground font-semibold">{{ produk?.nama_barang || 'produk ini' }}</span>
                             ({{ produk?.kode_barang || '-' }})?
                             <br />
-                            Tindakan ini <span class="text-destructive font-semibold">tidak dapat dibatalkan</span> dan
-                            seluruh data terkait akan ikut terhapus.
+                            Produk akan hilang dari daftar aktif, tetapi masih bisa
+                            <span class="text-foreground font-semibold">dipulihkan</span> dari tab Arsip.
                         </DialogDescription>
                     </div>
                 </div>
@@ -83,8 +83,8 @@ const submit = () => {
                     @click="submit"
                 >
                     <Loader2 v-if="deleteForm.processing" class="size-4 animate-spin" />
-                    <Trash2 v-else class="size-4" />
-                    {{ deleteForm.processing ? 'Menghapus...' : 'Ya, Hapus' }}
+                    <Archive v-else class="size-4" />
+                    {{ deleteForm.processing ? 'Mengarsipkan...' : 'Ya, Arsipkan' }}
                 </Button>
             </DialogFooter>
         </DialogContent>

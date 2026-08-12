@@ -31,6 +31,8 @@ class DatabaseSeeder extends Seeder
             AnggotaSeeder::class,
             ProdukSupplierSeeder::class,
             VoucherSeeder::class,
+            PembelianSeeder::class,
+            ReturPembelianSeeder::class,
         ]);
     }
 }

@@ -13,7 +13,7 @@ class ProdukSupplierSeeder extends Seeder
      * Seed 100 supplier & 1000 produk (idempotent, aman dijalankan ulang).
      *
      * - Supplier dibuat dengan kode SPL-0001..SPL-0100, di-skip bila sudah ada.
-     * - Produk dibuat dengan kode BRK-0001..BRK-1000, di-skip bila sudah ada.
+     * - Produk dibuat dengan kode 000001..001000, di-skip bila sudah ada.
      * - Produk terhubung ke supplier secara round-robin.
      * - store_id diisi dari toko pertama (jika ada), agar tampil di scope toko.
      */
@@ -94,7 +94,7 @@ class ProdukSupplierSeeder extends Seeder
 
         $baru = 0;
         for ($i = 1; $i <= $count; $i++) {
-            $kode = sprintf('BRK-%04d', $i);
+            $kode = sprintf('%06d', $i);
 
             if (Produk::where('kode_barang', $kode)->exists()) {
                 continue;

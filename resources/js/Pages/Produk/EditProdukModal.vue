@@ -110,7 +110,13 @@ const submit = () => {
                             </div>
                             <div class="grid gap-2">
                                 <Label htmlFor="kode_barang">Kode Barang</Label>
-                                <Input id="kode_barang" v-model="form.kode_barang" :disabled="form.processing" />
+                                <Input
+                                    id="kode_barang"
+                                    v-model="form.kode_barang"
+                                    placeholder="Hanya angka (contoh: 000001)"
+                                    inputmode="numeric"
+                                    :disabled="form.processing"
+                                />
                                 <p v-if="form.errors.kode_barang" class="text-destructive text-xs">{{ form.errors.kode_barang }}</p>
                             </div>
                             <div class="grid gap-2 sm:col-span-2">

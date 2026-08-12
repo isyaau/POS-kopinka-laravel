@@ -322,7 +322,7 @@ const submitCheckout = () => {
         onSuccess: () => {
             const flash = page.props.flash
             if (flash?.success) {
-                const match = flash.success.match(/TRX-\d{8}-\d{4}/)
+                const match = flash.success.match(/TRX[A-Z0-9]+\d{12}/)
                 lastNota.value = match ? match[0] : ''
             }
             // Simpan data struk (setelah form ter-submit) untuk cetak

@@ -390,7 +390,7 @@ const submitVoucher = () => {
                         <Download class="text-primary mt-0.5 size-4 shrink-0" />
                         <div class="text-muted-foreground text-xs">
                             Gunakan template yang sudah disediakan agar format kolom sesuai. Kolom wajib:
-                            <b>nama_barang</b>. Kode kosong akan dibuat otomatis (BRK-0001, dst.); kode yang
+                            <b>nama_barang</b>. Kode kosong akan dibuat otomatis (000001, dst.); kode yang
                             sudah ada akan dilewati.
                         </div>
                     </div>
@@ -422,7 +422,7 @@ const submitVoucher = () => {
                                     Isi satu baris untuk satu produk. <b class="text-foreground">Kolom wajib: <span class="text-destructive">nama_barang</span></b>.
                                 </li>
                                 <li>
-                                    <b class="text-foreground">Kode Barang</b> boleh dikosongkan — dibuat otomatis (BRK-0001, BRK-0002, dst).
+                                    <b class="text-foreground">Kode Barang</b> boleh dikosongkan — dibuat otomatis (000001, 000002, dst). Kode harus angka saja.
                                 </li>
                                 <li>
                                     <b class="text-foreground">Harga, Stok, PPN</b>: angka tanpa titik/koma ribuan. <b class="text-foreground">Tanggal Expired</b>: DD-MM-YYYY.

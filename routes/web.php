@@ -14,6 +14,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\PembelianController;
+use App\Http\Controllers\ReturPembelianController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -135,6 +137,27 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:produk.delete')
         ->name('produk.destroy');
 
+    Route::post('produk/{produk}/restore', [ProdukController::class, 'restore'])
+        ->middleware('permission:produk.delete')
+        ->name('produk.restore');
+
+    // ===== Retur / Tukar Pembelian =====
+    Route::get('retur-pembelian', [ReturPembelianController::class, 'index'])
+        ->middleware('permission:retur-pembelian.view')
+        ->name('retur-pembelian.index');
+
+    Route::post('retur-pembelian', [ReturPembelianController::class, 'store'])
+        ->middleware('permission:retur-pembelian.create')
+        ->name('retur-pembelian.store');
+
+    Route::put('retur-pembelian/{retur_pembelian}', [ReturPembelianController::class, 'update'])
+        ->middleware('permission:retur-pembelian.update')
+        ->name('retur-pembelian.update');
+
+    Route::delete('retur-pembelian/{retur_pembelian}', [ReturPembelianController::class, 'destroy'])
+        ->middleware('permission:retur-pembelian.delete')
+        ->name('retur-pembelian.destroy');
+
     Route::get('/laporan', [LaporanController::class, 'index'])
         ->middleware('permission:laporan.view')
         ->name('laporan.index');
@@ -239,6 +262,27 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])
         ->middleware('permission:supplier.delete')
         ->name('supplier.destroy');
+
+    Route::post('suppliers/{supplier}/restore', [SupplierController::class, 'restore'])
+        ->middleware('permission:supplier.delete')
+        ->name('supplier.restore');
+
+    // ===== Pembelian (CRUD + stok otomatis + update master produk) =====
+    Route::get('pembelian', [PembelianController::class, 'index'])
+        ->middleware('permission:pembelian.view')
+        ->name('pembelian.index');
+
+    Route::post('pembelian', [PembelianController::class, 'store'])
+        ->middleware('permission:pembelian.create')
+        ->name('pembelian.store');
+
+    Route::put('pembelian/{pembelian}', [PembelianController::class, 'update'])
+        ->middleware('permission:pembelian.update')
+        ->name('pembelian.update');
+
+    Route::delete('pembelian/{pembelian}', [PembelianController::class, 'destroy'])
+        ->middleware('permission:pembelian.delete')
+        ->name('pembelian.destroy');
 
     // ===== Migrasi Data =====
     Route::get('migrasi', function () {

@@ -107,7 +107,8 @@ const submit = () => {
                                 <Input
                                     id="kode_barang"
                                     v-model="form.kode_barang"
-                                    placeholder="Kosongkan untuk otomatis (BRK-0001)"
+                                    placeholder="Kosongkan untuk otomatis (000001)"
+                                    inputmode="numeric"
                                     :disabled="form.processing"
                                 />
                                 <p v-if="form.errors.kode_barang" class="text-destructive text-xs">{{ form.errors.kode_barang }}</p>

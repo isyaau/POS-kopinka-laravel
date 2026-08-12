@@ -148,7 +148,7 @@ const submit = () => {
                                     Isi satu baris untuk satu produk. <b class="text-foreground">Kolom wajib: <span class="text-destructive">nama_barang</span></b>.
                                 </li>
                                 <li>
-                                    <b class="text-foreground">Kode Barang</b> boleh dikosongkan — akan dibuat otomatis (BRK-0001, BRK-0002, dst).
+                                    <b class="text-foreground">Kode Barang</b> boleh dikosongkan — akan dibuat otomatis (000001, 000002, dst). Kode harus angka saja.
                                 </li>
                                 <li>
                                     <b class="text-foreground">Harga, Stok, PPN</b>: angka biasa tanpa titik/koma ribuan (contoh: <code class="bg-muted rounded px-1">50000</code>).

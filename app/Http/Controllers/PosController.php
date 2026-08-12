@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Anggota;
 use App\Models\Produk;
+use App\Models\Store;
 use App\Models\Transaksi;
 use App\Models\Voucher;
 use Illuminate\Http\Request;
@@ -71,12 +72,15 @@ class PosController extends Controller
             ->orderBy('kode')
             ->get(['id', 'kode', 'nama', 'nominal', 'barcode', 'status']);
 
+        // Preview no nota sesuai toko aktif (format: TRX{KODE}{YYYYMMDD}{0001})
+        $store = Store::find(($storeId && $storeId !== 'all') ? $storeId : null);
+
         return Inertia::render('POS/Index', [
             'produk' => $produk,
             'kategori_list' => $kategoriList,
             'anggota' => $anggota,
             'vouchers' => $vouchers,
-            'no_nota' => (new Transaksi())->generateNoNota(),
+            'no_nota' => (new Transaksi())->generateNoNota($store),
             'filters' => [
                 'search' => $search,
                 'kategori' => $kategori,

@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Transaksi;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -49,16 +48,10 @@ class StoreTransaksiRequest extends FormRequest
     }
 
     /**
-     * Auto-generate no_nota jika kosong & normalkan field numerik.
+     * Normalkan field numerik.
      */
     protected function prepareForValidation(): void
     {
-        $noNota = trim($this->input('no_nota') ?? '');
-
-        if ($noNota === '') {
-            $this->merge(['no_nota' => (new Transaksi())->generateNoNota()]);
-        }
-
         foreach (['nilai', 'diskon', 'jual', 'usaha', 'jasa', 'ppn', 'cash', 'qris', 'edc', 'voucher', 'piutang'] as $field) {
             $value = $this->input($field);
             if ($value === null || $value === '') {

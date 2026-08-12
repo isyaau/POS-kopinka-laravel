@@ -28,9 +28,19 @@ class ProdukController extends Controller
         $limit = (int) $request->input('limit', 10);
         $limit = in_array($limit, [10, 25, 50, 100]) ? $limit : 10;
 
+        // Filter tab: aktif (default), arsip, semua
+        $tab = $request->input('tab', 'aktif');
+        $tab = in_array($tab, ['aktif', 'arsip', 'semua']) ? $tab : 'aktif';
+
         $query = Produk::query()
             ->with(['store', 'supplier'])
             ->orderByDesc('created_at');
+
+        if ($tab === 'arsip') {
+            $query->onlyTrashed();
+        } elseif ($tab === 'aktif') {
+            $query->whereNull('deleted_at');
+        }
 
         // Scope ke toko aktif (kecuali 'all' / pusat)
         if ($storeId && $storeId !== 'all') {
@@ -53,6 +63,7 @@ class ProdukController extends Controller
             'filters' => [
                 'search' => $request->input('search', ''),
                 'limit' => $limit,
+                'tab' => $tab,
             ],
         ]);
     }
@@ -85,13 +96,25 @@ class ProdukController extends Controller
     }
 
     /**
-     * Hapus produk.
+     * Arsipkan (soft delete) produk — hilang dari listing aktif,
+     * tetapi tetap bisa dikembalikan (restore).
      */
     public function destroy(Produk $produk): RedirectResponse
     {
         $produk->delete();
 
-        return back()->with('success', 'Produk berhasil dihapus.');
+        return back()->with('success', 'Produk diarsipkan. Data dapat dipulihkan dari tab Arsip.');
+    }
+
+    /**
+     * Pulihkan produk yang diarsipkan.
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $produk = Produk::withTrashed()->findOrFail($id);
+        $produk->restore();
+
+        return back()->with('success', 'Produk berhasil dipulihkan kembali.');
     }
 
     /**
