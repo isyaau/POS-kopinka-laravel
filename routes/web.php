@@ -19,6 +19,7 @@ use App\Http\Controllers\ReturPembelianController;
 use App\Http\Controllers\KirimBarangController;
 use App\Http\Controllers\MutasiController;
 use App\Http\Controllers\TerimaBarangController;
+use App\Http\Controllers\StokOpnameController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -303,6 +304,23 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('terima-barang/{terima_barang}', [TerimaBarangController::class, 'destroy'])
         ->middleware('permission:terima-barang.delete')
         ->name('terima-barang.destroy');
+
+    // ===== Stok Opname (hitung fisik stok + reconcile) =====
+    Route::get('stok-opname', [StokOpnameController::class, 'index'])
+        ->middleware('permission:stok-opname.view')
+        ->name('stok-opname.index');
+
+    Route::post('stok-opname', [StokOpnameController::class, 'store'])
+        ->middleware('permission:stok-opname.create')
+        ->name('stok-opname.store');
+
+    Route::put('stok-opname/{stok_opname}', [StokOpnameController::class, 'update'])
+        ->middleware('permission:stok-opname.update')
+        ->name('stok-opname.update');
+
+    Route::delete('stok-opname/{stok_opname}', [StokOpnameController::class, 'destroy'])
+        ->middleware('permission:stok-opname.delete')
+        ->name('stok-opname.destroy');
 
     // ===== Kirim Barang (mutasi antar toko) =====
     Route::get('kirim-barang', [KirimBarangController::class, 'index'])

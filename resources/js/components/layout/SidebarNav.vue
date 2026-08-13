@@ -15,7 +15,8 @@ const groups = computed(() => getNavigation(permissions.value))
 
 const isActive = (href) => {
     if (href === '/dashboard') return page.url === '/dashboard' || page.url === '/'
-    return page.url.startsWith(href)
+    const url = page.url.split('?')[0]
+    return url === href || url.startsWith(href + '/')
 }
 </script>
 
