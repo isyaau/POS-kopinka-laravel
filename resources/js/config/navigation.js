@@ -34,6 +34,8 @@ export const navigation = [
             { title: 'Stok', href: '/stok', icon: Boxes, permission: 'stok.view' },
             { title: 'Pembelian', href: '/pembelian', icon: ShoppingBag, permission: 'pembelian.view' },
             { title: 'Retur / Tukar', href: '/retur-pembelian', icon: ArrowLeftRight, permission: 'retur-pembelian.view' },
+            { title: 'Kirim Barang', href: '/kirim-barang', icon: Truck, permission: 'kirim-barang.view' },
+            { title: 'Mutasi Produk', href: '/mutasi', icon: ArrowLeftRight, permission: 'stok.view' },
             { title: 'Voucher', href: '/voucher', icon: Ticket, permission: 'voucher.view' },
         ],
     },

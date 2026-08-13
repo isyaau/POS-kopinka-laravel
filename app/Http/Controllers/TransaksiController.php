@@ -157,7 +157,7 @@ class TransaksiController extends Controller
                             // Kurangi stok produk
                             if ($detail['produk_id']) {
                                 $produk = Produk::find($detail['produk_id']);
-                                if ($produk && $produk->stok >= $detail['qty']) {
+                                if ($produk && $produk->stokDi($store?->id) >= $detail['qty']) {
                                     $produk->kurangiStok($detail['qty'], "Transaksi {$transaksi->no_nota}", $store?->id);
                                 }
                             }
@@ -261,7 +261,7 @@ class TransaksiController extends Controller
 
                     if ($detail['produk_id']) {
                         $produk = Produk::find($detail['produk_id']);
-                        if ($produk && $produk->stok >= $detail['qty']) {
+                        if ($produk && $produk->stokDi($storeIdFinal) >= $detail['qty']) {
                             $produk->kurangiStok($detail['qty'], "Transaksi {$transaksi->no_nota}", $storeIdFinal);
                         }
                     }

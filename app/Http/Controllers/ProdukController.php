@@ -33,7 +33,7 @@ class ProdukController extends Controller
         $tab = in_array($tab, ['aktif', 'arsip', 'semua']) ? $tab : 'aktif';
 
         $query = Produk::query()
-            ->with(['store', 'supplier'])
+            ->with(['store', 'supplier', 'stoks'])
             ->orderByDesc('created_at');
 
         if ($tab === 'arsip') {
@@ -80,7 +80,19 @@ class ProdukController extends Controller
             'store_id' => ($storeId && $storeId !== 'all') ? $storeId : null,
         ]);
 
-        Produk::create($data);
+        $produk = Produk::create($data);
+
+        // Sync stok awal untuk toko aktif (field stok/stok_minimum di request).
+        $activeStoreId = ($storeId && $storeId !== 'all') ? (int) $storeId : null;
+        if ($activeStoreId) {
+            $produk->stoks()->updateOrCreate(
+                ['store_id' => $activeStoreId],
+                [
+                    'stok' => (int) ($validated['stok'] ?? 0),
+                    'stok_minimum' => (int) ($validated['stok_minimum'] ?? 0),
+                ],
+            );
+        }
 
         return back()->with('success', 'Produk berhasil ditambahkan.');
     }
@@ -90,7 +102,22 @@ class ProdukController extends Controller
      */
     public function update(UpdateProdukRequest $request, Produk $produk): RedirectResponse
     {
-        $produk->update($request->validated());
+        $storeId = session('store_id');
+        $validated = $request->validated();
+
+        $produk->update($validated);
+
+        // Sync stok untuk toko aktif.
+        $activeStoreId = ($storeId && $storeId !== 'all') ? (int) $storeId : null;
+        if ($activeStoreId) {
+            $produk->stoks()->updateOrCreate(
+                ['store_id' => $activeStoreId],
+                [
+                    'stok' => (int) ($validated['stok'] ?? 0),
+                    'stok_minimum' => (int) ($validated['stok_minimum'] ?? 0),
+                ],
+            );
+        }
 
         return back()->with('success', 'Data produk berhasil diperbarui.');
     }

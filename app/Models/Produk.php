@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Produk extends Model
@@ -24,8 +25,6 @@ class Produk extends Model
         'harga_beli',
         'harga_jual',
         'diskon',
-        'stok',
-        'stok_minimum',
         'tanggal_expired',
         'ppn',
         'store_id',
@@ -55,9 +54,55 @@ class Produk extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    public function stokRiwayat(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * Relasi ke baris stok per-toko (tabel `stok`).
+     */
+    public function stoks(): HasMany
+    {
+        return $this->hasMany(Stok::class);
+    }
+
+    public function stokRiwayat(): HasMany
     {
         return $this->hasMany(StokRiwayat::class);
+    }
+
+    /**
+     * Stok produk pada toko tertentu (default: toko aktif dari session).
+     * Mengembalikan 0 bila belum ada baris stok.
+     */
+    public function stokDi(?int $storeId = null): int
+    {
+        if ($storeId === null) {
+            $storeId = (int) (session('store_id') ?: 0);
+        }
+
+        if (! $storeId) {
+            // Tanpa toko: total seluruh baris stok.
+            return (int) $this->stoks()->sum('stok');
+        }
+
+        return (int) ($this->stoks()
+            ->where('store_id', $storeId)
+            ->value('stok') ?? 0);
+    }
+
+    /**
+     * Stok minimum produk pada toko tertentu.
+     */
+    public function stokMinimumDi(?int $storeId = null): int
+    {
+        if ($storeId === null) {
+            $storeId = (int) (session('store_id') ?: 0);
+        }
+
+        if (! $storeId) {
+            return (int) ($this->stoks()->min('stok_minimum') ?? 0);
+        }
+
+        return (int) ($this->stoks()
+            ->where('store_id', $storeId)
+            ->value('stok_minimum') ?? 0);
     }
 
     /**
@@ -79,11 +124,11 @@ class Produk extends Model
     }
 
     /**
-     * Stok menipis jika stok <= stok_minimum.
+     * Stok menipis pada toko tertentu jika stok <= stok_minimum.
      */
-    public function isLowStock(): bool
+    public function isLowStock(?int $storeId = null): bool
     {
-        return $this->stok <= $this->stok_minimum;
+        return $this->stokDi($storeId) <= $this->stokMinimumDi($storeId);
     }
 
     /**
@@ -95,11 +140,25 @@ class Produk extends Model
     }
 
     /**
-     * Tambah stok + catat riwayat stok (tipe: masuk).
+     * Ambil (atau buat) baris stok untuk toko tertentu.
+     */
+    protected function stokRow(?int $storeId = null): Stok
+    {
+        $resolved = $storeId ?: (int) (session('store_id') ?: 0) ?: null;
+
+        return $this->stoks()->firstOrCreate(
+            ['store_id' => $resolved],
+            ['stok' => 0, 'stok_minimum' => 0],
+        );
+    }
+
+    /**
+     * Tambah stok per-toko + catat riwayat stok (tipe: masuk).
      */
     public function tambahStok(int $qty, ?string $keterangan = null, ?int $storeId = null): void
     {
-        $this->increment('stok', $qty);
+        $row = $this->stokRow($storeId);
+        $row->increment('stok', $qty);
 
         StokRiwayat::create([
             'produk_id' => $this->id,
@@ -107,24 +166,32 @@ class Produk extends Model
             'qty' => $qty,
             'tanggal' => now()->toDateString(),
             'keterangan' => $keterangan,
-            'store_id' => $storeId ?? $this->store_id,
+            'store_id' => $row->store_id,
         ]);
     }
 
     /**
-     * Kurangi stok + catat riwayat stok (tipe: keluar).
+     * Kurangi stok per-toko + catat riwayat stok (tipe: keluar).
+     *
+     * Stok tidak boleh negatif: bila qty melebihi stok, hanya dikurangi
+     * sebatas stok tersisa (sisa 0) agar mutasi tetap konsisten.
      */
     public function kurangiStok(int $qty, ?string $keterangan = null, ?int $storeId = null): void
     {
-        $this->decrement('stok', $qty);
+        $row = $this->stokRow($storeId);
+        $qtyEffectif = min($qty, $row->stok);
+
+        if ($qtyEffectif > 0) {
+            $row->decrement('stok', $qtyEffectif);
+        }
 
         StokRiwayat::create([
             'produk_id' => $this->id,
             'tipe' => 'keluar',
-            'qty' => $qty,
+            'qty' => $qtyEffectif,
             'tanggal' => now()->toDateString(),
             'keterangan' => $keterangan,
-            'store_id' => $storeId ?? $this->store_id,
+            'store_id' => $row->store_id,
         ]);
     }
 }

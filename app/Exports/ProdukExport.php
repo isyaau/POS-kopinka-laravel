@@ -80,8 +80,8 @@ class ProdukExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
             $produk->harga_beli,
             $produk->harga_jual,
             $produk->diskon,
-            $produk->stok,
-            $produk->stok_minimum,
+            $produk->stokDi($this->filters['store_id'] ?? null),
+            $produk->stokMinimumDi($this->filters['store_id'] ?? null),
             $produk->tanggal_expired?->format('d-m-Y'),
             $produk->ppn,
         ];

@@ -119,9 +119,12 @@ class ProdukImport implements ToModel, WithHeadingRow, WithValidation, SkipsEmpt
 
         $num = fn ($v, $default = 0) => ($v === null || $v === '') ? $default : (float) $v;
 
+        $stok = (int) $num($row['stok'] ?? null);
+        $stokMinimum = (int) $num($row['stok_minimum'] ?? null);
+
         $this->imported++;
 
-        return new Produk([
+        $produk = new Produk([
             'kode_barang' => $kode,
             'nama_barang' => $nama,
             'kategori' => trim((string) ($row['kategori'] ?? '')),
@@ -130,13 +133,22 @@ class ProdukImport implements ToModel, WithHeadingRow, WithValidation, SkipsEmpt
             'harga_beli' => $num($row['harga_beli'] ?? null),
             'harga_jual' => $num($row['harga_jual'] ?? null),
             'diskon' => $num($row['diskon'] ?? null),
-            'stok' => (int) $num($row['stok'] ?? null),
-            'stok_minimum' => (int) $num($row['stok_minimum'] ?? null),
             'tanggal_expired' => $this->parseDate($row['tanggal_expired'] ?? null),
             'ppn' => $num($row['ppn'] ?? null),
             'store_id' => $this->storeId,
             'supplier_id' => $this->resolveSupplier($row['supplier'] ?? null),
         ]);
+
+        $produk->save();
+
+        if ($this->storeId) {
+            \App\Models\Stok::updateOrCreate(
+                ['produk_id' => $produk->id, 'store_id' => $this->storeId],
+                ['stok' => $stok, 'stok_minimum' => $stokMinimum],
+            );
+        }
+
+        return $produk;
     }
 
     public function rules(): array

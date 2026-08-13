@@ -16,6 +16,8 @@ use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\ReturPembelianController;
+use App\Http\Controllers\KirimBarangController;
+use App\Http\Controllers\MutasiController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -283,6 +285,28 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('pembelian/{pembelian}', [PembelianController::class, 'destroy'])
         ->middleware('permission:pembelian.delete')
         ->name('pembelian.destroy');
+
+    // ===== Kirim Barang (mutasi antar toko) =====
+    Route::get('kirim-barang', [KirimBarangController::class, 'index'])
+        ->middleware('permission:kirim-barang.view')
+        ->name('kirim-barang.index');
+
+    Route::post('kirim-barang', [KirimBarangController::class, 'store'])
+        ->middleware('permission:kirim-barang.create')
+        ->name('kirim-barang.store');
+
+    Route::put('kirim-barang/{kirim_barang}', [KirimBarangController::class, 'update'])
+        ->middleware('permission:kirim-barang.update')
+        ->name('kirim-barang.update');
+
+    Route::delete('kirim-barang/{kirim_barang}', [KirimBarangController::class, 'destroy'])
+        ->middleware('permission:kirim-barang.delete')
+        ->name('kirim-barang.destroy');
+
+    // ===== Cek Mutasi Produk (ledger stok) =====
+    Route::get('mutasi', [MutasiController::class, 'index'])
+        ->middleware('permission:stok.view')
+        ->name('mutasi.index');
 
     // ===== Migrasi Data =====
     Route::get('migrasi', function () {

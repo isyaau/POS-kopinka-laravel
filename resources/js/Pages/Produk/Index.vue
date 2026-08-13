@@ -281,7 +281,7 @@ const lowStock = (p) => p.stok <= p.stok_minimum
                                         <span v-else class="text-muted-foreground">-</span>
                                     </td>
                                     <td class="border-b px-4 py-3 text-right">
-                                        <Badge :variant="lowStock(item) ? 'warning' : 'success'">
+                                        <Badge :variant="lowStock(item) ? 'warning' : 'success'" :title="`Stok toko aktif: ${item.stok}`">
                                             <AlertTriangle v-if="lowStock(item)" class="size-3" />
                                             {{ item.stok }}
                                         </Badge>

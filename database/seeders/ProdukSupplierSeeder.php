@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Produk;
+use App\Models\Stok;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Database\Seeder;
@@ -15,7 +16,7 @@ class ProdukSupplierSeeder extends Seeder
      * - Supplier dibuat dengan kode SPL-0001..SPL-0100, di-skip bila sudah ada.
      * - Produk dibuat dengan kode 000001..001000, di-skip bila sudah ada.
      * - Produk terhubung ke supplier secara round-robin.
-     * - store_id diisi dari toko pertama (jika ada), agar tampil di scope toko.
+     * - Stok dipisah per-toko di tabel `stok` (bukan kolom produk).
      */
     public function run(): void
     {
@@ -38,6 +39,7 @@ class ProdukSupplierSeeder extends Seeder
             'Kosmetik', 'Minuman', 'Snack', 'Otomotif', 'Bangunan', 'Frozen',
             'Farmasi', 'Peralatan', 'Distribusi', 'Logistik', 'Trading', 'Suplai',
         ];
+        $kota = ['Jakarta', 'Bandung', 'Surabaya', 'Semarang', 'Medan', 'Makassar', 'Yogyakarta'];
 
         $baru = 0;
         for ($i = 1; $i <= $count; $i++) {
@@ -59,10 +61,7 @@ class ProdukSupplierSeeder extends Seeder
             Supplier::create([
                 'kode' => $kode,
                 'nama' => $nama,
-                'alamat' => 'Jl. ' . $namaBadan[array_rand($namaBadan)] . ' No. ' . rand(1, 999) . ', '
-                    . ['Jakarta', 'Bandung', 'Surabaya', 'Semarang', 'Medan', 'Makassar', 'Yogyakarta'][array_rand([
-                        'Jakarta', 'Bandung', 'Surabaya', 'Semarang', 'Medan', 'Makassar', 'Yogyakarta',
-                    ])],
+                'alamat' => 'Jl. ' . $namaBadan[array_rand($namaBadan)] . ' No. ' . rand(1, 999) . ', ' . $kota[array_rand($kota)],
                 'contact_person' => 'Bpk/Ibu ' . $namaBadan[array_rand($namaBadan)],
                 'no_telp' => '08' . rand(100000000, 999999999),
                 'keterangan' => 'Supplier ' . ($i % 3 === 0 ? 'utama' : ($i % 3 === 1 ? 'cadangan' : 'musiman')),
@@ -92,6 +91,9 @@ class ProdukSupplierSeeder extends Seeder
             'Kulkas', 'TV', 'HP', 'Charger', 'Headset', 'Mouse', 'Keyboard',
         ];
 
+        $storeIds = Store::query()->orderBy('id')->pluck('id')->all();
+        $baseStoreId = $storeIds[0] ?? null;
+
         $baru = 0;
         for ($i = 1; $i <= $count; $i++) {
             $kode = sprintf('%06d', $i);
@@ -115,10 +117,7 @@ class ProdukSupplierSeeder extends Seeder
             $margin = 1 + (rand(15, 45) / 100);
             $hargaJual = round($hargaBeli * $margin, -2);
 
-            $stok = rand(0, 500);
-            $stokMinimum = rand(5, 20);
-
-            Produk::create([
+            $produk = Produk::create([
                 'kode_barang' => $kode,
                 'nama_barang' => $namaBarang,
                 'kategori' => $kategoriPilih,
@@ -127,17 +126,53 @@ class ProdukSupplierSeeder extends Seeder
                 'harga_beli' => $hargaBeli,
                 'harga_jual' => $hargaJual,
                 'diskon' => rand(0, 5) === 0 ? rand(500, 5000) : 0,
-                'stok' => $stok,
-                'stok_minimum' => $stokMinimum,
                 'tanggal_expired' => rand(0, 3) === 0 ? now()->addMonths(rand(1, 24))->toDateString() : null,
                 'ppn' => rand(0, 5) === 0 ? 11 : 0,
-                'store_id' => $this->firstStoreId(),
+                'store_id' => $baseStoreId,
                 'supplier_id' => $this->supplierIdForIndex($i),
             ]);
+
+            // Distribusikan stok ke beberapa toko (tiap toko stok beda).
+            $this->seedStokForProduk($produk, $storeIds, $baseStoreId);
+
             $baru++;
         }
 
         $this->command?->info("Produk: {$baru} baru dibuat.");
+    }
+
+    /**
+     * Buat baris stok per-toko agar tiap toko punya stok berbeda.
+     * Produk paling tidak punya stok di toko utamanya; sisanya didistribusikan
+     * secara acak ke toko lain.
+     */
+    protected function seedStokForProduk(Produk $produk, array $storeIds, ?int $baseStoreId): void
+    {
+        if (empty($storeIds)) {
+            return;
+        }
+
+        $stokMinimum = rand(5, 20);
+
+        // Toko utama: stok acak
+        if ($baseStoreId) {
+            Stok::updateOrCreate(
+                ['produk_id' => $produk->id, 'store_id' => $baseStoreId],
+                ['stok' => rand(0, 500), 'stok_minimum' => $stokMinimum],
+            );
+        }
+
+        // Distribusikan ke 1-3 toko lain secara acak
+        $lainnya = array_filter($storeIds, fn ($id) => $id !== $baseStoreId);
+        shuffle($lainnya);
+        $jumlahToko = min(count($lainnya), rand(1, 3));
+
+        for ($j = 0; $j < $jumlahToko; $j++) {
+            Stok::updateOrCreate(
+                ['produk_id' => $produk->id, 'store_id' => $lainnya[$j]],
+                ['stok' => rand(0, 300), 'stok_minimum' => $stokMinimum],
+            );
+        }
     }
 
     /**

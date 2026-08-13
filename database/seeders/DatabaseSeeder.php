@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             VoucherSeeder::class,
             PembelianSeeder::class,
             ReturPembelianSeeder::class,
+            KirimBarangSeeder::class,
         ]);
     }
 }

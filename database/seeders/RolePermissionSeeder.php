@@ -43,7 +43,8 @@ class RolePermissionSeeder extends Seeder
             // Pembelian
             'pembelian.view', 'pembelian.create', 'pembelian.update', 'pembelian.delete',
             // Retur / Tukar Pembelian
-            'retur-pembelian.view', 'retur-pembelian.create', 'retur-pembelian.update', 'retur-pembelian.delete',
+            // Kirim Barang (mutasi antar toko)
+            'kirim-barang.view', 'kirim-barang.create', 'kirim-barang.update', 'kirim-barang.delete',
             // User
             'user.view', 'user.create', 'user.update', 'user.delete',
             // Role
@@ -85,6 +86,7 @@ class RolePermissionSeeder extends Seeder
             'anggota.view', 'anggota.create', 'anggota.update',
             'supplier.view', 'supplier.create', 'supplier.update', 'supplier.import',
             'pembelian.view', 'pembelian.create', 'pembelian.update',
+            'kirim-barang.view', 'kirim-barang.create', 'kirim-barang.update',
             'retur-pembelian.view', 'retur-pembelian.create', 'retur-pembelian.update',
             'store.view',
         ]);
@@ -106,6 +108,7 @@ class RolePermissionSeeder extends Seeder
             'anggota.view', 'anggota.create', 'anggota.update',
             'supplier.view', 'supplier.create', 'supplier.update', 'supplier.import',
             'pembelian.view', 'pembelian.create', 'pembelian.update',
+            'kirim-barang.view', 'kirim-barang.create', 'kirim-barang.update',
             'retur-pembelian.view', 'retur-pembelian.create', 'retur-pembelian.update',
         ]);
 

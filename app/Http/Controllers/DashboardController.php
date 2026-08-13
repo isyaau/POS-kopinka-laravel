@@ -134,16 +134,31 @@ class DashboardController extends Controller
     }
 
     /**
-     * Produk dengan stok menipis (stok <= stok_minimum), maksimal 5.
+     * Produk dengan stok menipis (stok <= stok_minimum) pada toko aktif, maksimal 5.
      */
     protected function stokMenipis(?string $storeId): array
     {
-        return Produk::query()
-            ->when($storeId && $storeId !== 'all', fn ($q) => $q->where('store_id', $storeId))
-            ->whereColumn('stok', '<=', 'stok_minimum')
-            ->orderByRaw('(stok - stok_minimum) ASC')
+        $query = Produk::query()
+            ->join('stok', 'stok.produk_id', '=', 'produk.id')
+            ->whereRaw('stok.stok <= stok.stok_minimum');
+
+        if ($storeId && $storeId !== 'all') {
+            $query->where('stok.store_id', $storeId);
+        }
+        // Jika "all", tidak difilter → tampilkan stok menipis di toko mana pun.
+
+        return $query
+            ->selectRaw('
+                produk.kode_barang,
+                produk.nama_barang,
+                produk.satuan,
+                MIN(stok.stok) AS stok,
+                MIN(stok.stok_minimum) AS stok_minimum
+            ')
+            ->groupBy('produk.kode_barang', 'produk.nama_barang', 'produk.satuan')
+            ->orderByRaw('MIN(stok.stok - stok.stok_minimum) ASC')
             ->limit(5)
-            ->get(['kode_barang', 'nama_barang', 'stok', 'stok_minimum', 'satuan'])
+            ->get()
             ->map(fn ($p) => [
                 'kode_barang' => $p->kode_barang,
                 'nama_barang' => $p->nama_barang,
