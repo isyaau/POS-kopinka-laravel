@@ -56,7 +56,15 @@ class TransaksiController extends Controller
         return Inertia::render('Transaksi/Index', [
             'transaksi' => $transaksi,
             'anggota' => Anggota::orderBy('nama')->get(['id', 'nip', 'nama']),
-            'produk' => Produk::orderBy('nama_barang')->get(['id', 'kode_barang', 'nama_barang', 'harga_jual', 'stok']),
+            'produk' => Produk::with('stoks')
+                ->orderBy('nama_barang')
+                ->get(['id', 'kode_barang', 'nama_barang', 'harga_jual'])
+                ->map(function ($p) use ($storeId) {
+                    $sid = ($storeId && $storeId !== 'all') ? (int) $storeId : null;
+                    $p->stok = $p->stokDi($sid);
+
+                    return $p;
+                }),
             'filters' => [
                 'search' => $request->input('search', ''),
                 'limit' => $limit,

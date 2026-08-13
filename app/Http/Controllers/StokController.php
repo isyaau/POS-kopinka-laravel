@@ -101,7 +101,7 @@ class StokController extends Controller
         $totalStok = (clone $statQuery)->sum('stok');
         $nilaiStok = Stok::query()
             ->whereIn('produk_id', $produk->getCollection()->pluck('id'))
-            ->when(! $showAll, fn ($q) => $q->where('store_id', $storeId))
+            ->when(! $showAll, fn ($q) => $q->where('stok.store_id', $storeId))
             ->join('produk', 'produk.id', '=', 'stok.produk_id')
             ->sum(DB::raw('stok.stok * produk.harga_beli'));
 

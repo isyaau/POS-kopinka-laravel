@@ -183,7 +183,7 @@ class TransaksiImport implements ToModel, WithHeadingRow, WithValidation, SkipsE
                 $detailCount++;
 
                 // Kurangi stok produk bila ditemukan
-                if ($produk && $produk->stok >= $qty) {
+                if ($produk && $produk->stokDi($this->storeId) >= $qty) {
                     $produk->kurangiStok($qty, "Transaksi {$noNota}", $this->storeId);
                 }
             }

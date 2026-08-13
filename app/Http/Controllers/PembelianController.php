@@ -48,8 +48,15 @@ class PembelianController extends Controller
 
         return Inertia::render('Pembelian/Index', [
             'pembelian' => $pembelian,
-            'suppliers' => Supplier::orderBy('nama')->get(['id', 'kode', 'nama']),
-            'produk' => Produk::orderBy('nama_barang')->get(['id', 'kode_barang', 'nama_barang', 'harga_beli', 'harga_jual', 'stok']),
+            'produk' => Produk::with('stoks')
+                ->orderBy('nama_barang')
+                ->get(['id', 'kode_barang', 'nama_barang', 'harga_beli', 'harga_jual'])
+                ->map(function ($p) use ($storeId) {
+                    $sid = ($storeId && $storeId !== 'all') ? (int) $storeId : null;
+                    $p->stok = $p->stokDi($sid);
+
+                    return $p;
+                }),
             'filters' => [
                 'search' => $request->input('search', ''),
                 'limit' => $limit,
@@ -193,7 +200,6 @@ class PembelianController extends Controller
                                         'harga_beli' => $detail['harga_beli'],
                                         'harga_jual' => $detail['harga_jual'],
                                         'tanggal_expired' => $detail['tanggal_expired'] ?: null,
-                                        'stok' => 0,
                                         'store_id' => $store?->id,
                                         'supplier_id' => $validated['supplier_id'] ?? null,
                                     ]);
@@ -315,7 +321,6 @@ class PembelianController extends Controller
                                     'harga_beli' => $detail['harga_beli'],
                                     'harga_jual' => $detail['harga_jual'],
                                     'tanggal_expired' => $detail['tanggal_expired'] ?: null,
-                                    'stok' => 0,
                                     'store_id' => $storeIdFinal,
                                     'supplier_id' => $validated['supplier_id'] ?? null,
                                 ]);

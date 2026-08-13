@@ -18,6 +18,7 @@ use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\ReturPembelianController;
 use App\Http\Controllers\KirimBarangController;
 use App\Http\Controllers\MutasiController;
+use App\Http\Controllers\TerimaBarangController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -285,6 +286,23 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('pembelian/{pembelian}', [PembelianController::class, 'destroy'])
         ->middleware('permission:pembelian.delete')
         ->name('pembelian.destroy');
+
+    // ===== Terima Barang (konsinyasi / retur toko) — stok masuk, tanpa finansial =====
+    Route::get('terima-barang', [TerimaBarangController::class, 'index'])
+        ->middleware('permission:terima-barang.view')
+        ->name('terima-barang.index');
+
+    Route::post('terima-barang', [TerimaBarangController::class, 'store'])
+        ->middleware('permission:terima-barang.create')
+        ->name('terima-barang.store');
+
+    Route::put('terima-barang/{terima_barang}', [TerimaBarangController::class, 'update'])
+        ->middleware('permission:terima-barang.update')
+        ->name('terima-barang.update');
+
+    Route::delete('terima-barang/{terima_barang}', [TerimaBarangController::class, 'destroy'])
+        ->middleware('permission:terima-barang.delete')
+        ->name('terima-barang.destroy');
 
     // ===== Kirim Barang (mutasi antar toko) =====
     Route::get('kirim-barang', [KirimBarangController::class, 'index'])

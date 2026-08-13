@@ -16,6 +16,7 @@ import {
     Ticket,
     ShoppingBag,
     ArrowLeftRight,
+    PackageCheck,
 } from 'lucide-vue-next'
 
 export const navigation = [
@@ -33,6 +34,7 @@ export const navigation = [
             { title: 'Produk', href: '/produk', icon: Package, permission: 'produk.view' },
             { title: 'Stok', href: '/stok', icon: Boxes, permission: 'stok.view' },
             { title: 'Pembelian', href: '/pembelian', icon: ShoppingBag, permission: 'pembelian.view' },
+            { title: 'Terima Barang', href: '/terima-barang', icon: PackageCheck, permission: 'terima-barang.view' },
             { title: 'Retur / Tukar', href: '/retur-pembelian', icon: ArrowLeftRight, permission: 'retur-pembelian.view' },
             { title: 'Kirim Barang', href: '/kirim-barang', icon: Truck, permission: 'kirim-barang.view' },
             { title: 'Mutasi Produk', href: '/mutasi', icon: ArrowLeftRight, permission: 'stok.view' },

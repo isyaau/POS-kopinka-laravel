@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             ProdukSupplierSeeder::class,
             VoucherSeeder::class,
             PembelianSeeder::class,
+            TerimaBarangSeeder::class,
             ReturPembelianSeeder::class,
             KirimBarangSeeder::class,
         ]);
