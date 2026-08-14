@@ -49,7 +49,14 @@ class RolePermissionSeeder extends Seeder
             // Retur / Tukar Pembelian
             // Kirim Barang (mutasi antar toko)
             'kirim-barang.view', 'kirim-barang.create', 'kirim-barang.update', 'kirim-barang.delete',
-            // User
+            // Biaya Operasional
+            'biaya-operasional.view', 'biaya-operasional.create', 'biaya-operasional.update', 'biaya-operasional.delete',
+            // Pembayaran Hutang Supplier
+            'pembayaran-hutang.view', 'pembayaran-hutang.create', 'pembayaran-hutang.update', 'pembayaran-hutang.delete',
+            // Retur & Pembayaran Barang Konsinyi
+            'konsinyi.view', 'konsinyi.create', 'konsinyi.update', 'konsinyi.delete',
+            // Penerimaan Angsuran Piutang Dagang
+            'penerimaan-angsuran.view', 'penerimaan-angsuran.create', 'penerimaan-angsuran.update', 'penerimaan-angsuran.delete',
             'user.view', 'user.create', 'user.update', 'user.delete',
             // Role
             'role.view', 'role.create', 'role.update', 'role.delete',
@@ -94,6 +101,10 @@ class RolePermissionSeeder extends Seeder
             'stok-opname.view', 'stok-opname.create', 'stok-opname.update', 'stok-opname.delete',
             'kirim-barang.view', 'kirim-barang.create', 'kirim-barang.update',
             'retur-pembelian.view', 'retur-pembelian.create', 'retur-pembelian.update',
+            'biaya-operasional.view', 'biaya-operasional.create', 'biaya-operasional.update', 'biaya-operasional.delete',
+            'pembayaran-hutang.view', 'pembayaran-hutang.create', 'pembayaran-hutang.update', 'pembayaran-hutang.delete',
+            'konsinyi.view', 'konsinyi.create', 'konsinyi.update', 'konsinyi.delete',
+            'penerimaan-angsuran.view', 'penerimaan-angsuran.create', 'penerimaan-angsuran.update', 'penerimaan-angsuran.delete',
             'store.view',
         ]);
 
@@ -102,6 +113,9 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'laporan.view',
             'anggota.view', 'anggota.export',
+            'biaya-operasional.view', 'biaya-operasional.create', 'biaya-operasional.update', 'biaya-operasional.delete',
+            'pembayaran-hutang.view', 'pembayaran-hutang.create', 'pembayaran-hutang.update', 'pembayaran-hutang.delete',
+            'penerimaan-angsuran.view', 'penerimaan-angsuran.create', 'penerimaan-angsuran.update', 'penerimaan-angsuran.delete',
         ]);
 
         // ===== Role per-toko =====
@@ -118,6 +132,10 @@ class RolePermissionSeeder extends Seeder
             'stok-opname.view', 'stok-opname.create', 'stok-opname.update', 'stok-opname.delete',
             'kirim-barang.view', 'kirim-barang.create', 'kirim-barang.update',
             'retur-pembelian.view', 'retur-pembelian.create', 'retur-pembelian.update',
+            'biaya-operasional.view', 'biaya-operasional.create', 'biaya-operasional.update', 'biaya-operasional.delete',
+            'pembayaran-hutang.view', 'pembayaran-hutang.create', 'pembayaran-hutang.update', 'pembayaran-hutang.delete',
+            'konsinyi.view', 'konsinyi.create', 'konsinyi.update', 'konsinyi.delete',
+            'penerimaan-angsuran.view', 'penerimaan-angsuran.create', 'penerimaan-angsuran.update', 'penerimaan-angsuran.delete',
         ]);
 
         // ===== 6 Stores: 1 pusat + 5 toko =====

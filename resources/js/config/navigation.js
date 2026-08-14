@@ -18,6 +18,10 @@ import {
     ArrowLeftRight,
     PackageCheck,
     ClipboardCheck,
+    ReceiptText,
+    Wallet,
+    PackageX,
+    Landmark,
 } from 'lucide-vue-next'
 
 export const navigation = [
@@ -47,6 +51,10 @@ export const navigation = [
         title: 'Kantor Pusat',
         items: [
             { title: 'Laporan', href: '/laporan', icon: BarChart3, permission: 'laporan.view' },
+            { title: 'Biaya Operasional', href: '/biaya-operasional', icon: ReceiptText, permission: 'biaya-operasional.view' },
+            { title: 'Hutang Supplier', href: '/pembayaran-hutang', icon: Wallet, permission: 'pembayaran-hutang.view' },
+            { title: 'Konsinyi', href: '/konsinyi', icon: PackageX, permission: 'konsinyi.view' },
+            { title: 'Penerimaan Angsuran', href: '/penerimaan-angsuran', icon: Landmark, permission: 'penerimaan-angsuran.view' },
             { title: 'Toko', href: '/toko', icon: Store, permission: 'store.view' },
         ],
     },

@@ -36,6 +36,9 @@ class DatabaseSeeder extends Seeder
             StokOpnameSeeder::class,
             ReturPembelianSeeder::class,
             KirimBarangSeeder::class,
-        ]);
+            BiayaOperasionalSeeder::class,
+            PembayaranHutangSeeder::class,
+            KonsinyiSeeder::class,
+            PenerimaanAngsuranSeeder::class,
     }
 }

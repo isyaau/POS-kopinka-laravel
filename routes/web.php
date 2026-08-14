@@ -20,6 +20,10 @@ use App\Http\Controllers\KirimBarangController;
 use App\Http\Controllers\MutasiController;
 use App\Http\Controllers\TerimaBarangController;
 use App\Http\Controllers\StokOpnameController;
+use App\Http\Controllers\BiayaOperasionalController;
+use App\Http\Controllers\PembayaranHutangController;
+use App\Http\Controllers\KonsinyiController;
+use App\Http\Controllers\PenerimaanAngsuranController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -343,6 +347,74 @@ Route::middleware(['auth'])->group(function () {
     Route::get('mutasi', [MutasiController::class, 'index'])
         ->middleware('permission:stok.view')
         ->name('mutasi.index');
+
+    // ===== Biaya Operasional (CRUD pengeluaran operasional koperasi) =====
+    Route::get('biaya-operasional', [BiayaOperasionalController::class, 'index'])
+        ->middleware('permission:biaya-operasional.view')
+        ->name('biaya-operasional.index');
+
+    Route::post('biaya-operasional', [BiayaOperasionalController::class, 'store'])
+        ->middleware('permission:biaya-operasional.create')
+        ->name('biaya-operasional.store');
+
+    Route::put('biaya-operasional/{biaya_operasional}', [BiayaOperasionalController::class, 'update'])
+        ->middleware('permission:biaya-operasional.update')
+        ->name('biaya-operasional.update');
+
+    Route::delete('biaya-operasional/{biaya_operasional}', [BiayaOperasionalController::class, 'destroy'])
+        ->middleware('permission:biaya-operasional.delete')
+        ->name('biaya-operasional.destroy');
+
+    // ===== Pembayaran Hutang Supplier (CRUD + log user) =====
+    Route::get('pembayaran-hutang', [PembayaranHutangController::class, 'index'])
+        ->middleware('permission:pembayaran-hutang.view')
+        ->name('pembayaran-hutang.index');
+
+    Route::post('pembayaran-hutang', [PembayaranHutangController::class, 'store'])
+        ->middleware('permission:pembayaran-hutang.create')
+        ->name('pembayaran-hutang.store');
+
+    Route::put('pembayaran-hutang/{pembayaran_hutang}', [PembayaranHutangController::class, 'update'])
+        ->middleware('permission:pembayaran-hutang.update')
+        ->name('pembayaran-hutang.update');
+
+    Route::delete('pembayaran-hutang/{pembayaran_hutang}', [PembayaranHutangController::class, 'destroy'])
+        ->middleware('permission:pembayaran-hutang.delete')
+        ->name('pembayaran-hutang.destroy');
+
+    // ===== Retur & Pembayaran Barang Konsinyi (CRUD + log user) =====
+    Route::get('konsinyi', [KonsinyiController::class, 'index'])
+        ->middleware('permission:konsinyi.view')
+        ->name('konsinyi.index');
+
+    Route::post('konsinyi', [KonsinyiController::class, 'store'])
+        ->middleware('permission:konsinyi.create')
+        ->name('konsinyi.store');
+
+    Route::put('konsinyi/{konsinyi}', [KonsinyiController::class, 'update'])
+        ->middleware('permission:konsinyi.update')
+        ->name('konsinyi.update');
+
+    Route::delete('konsinyi/{konsinyi}', [KonsinyiController::class, 'destroy'])
+        ->middleware('permission:konsinyi.delete')
+        ->name('konsinyi.destroy');
+
+    // ===== Penerimaan Angsuran Piutang Dagang (CRUD + log user) =====
+    Route::get('penerimaan-angsuran', [PenerimaanAngsuranController::class, 'index'])
+        ->middleware('permission:penerimaan-angsuran.view')
+        ->name('penerimaan-angsuran.index');
+
+    Route::post('penerimaan-angsuran', [PenerimaanAngsuranController::class, 'store'])
+        ->middleware('permission:penerimaan-angsuran.create')
+        ->name('penerimaan-angsuran.store');
+
+    Route::put('penerimaan-angsuran/{penerimaan_angsuran}', [PenerimaanAngsuranController::class, 'update'])
+        ->middleware('permission:penerimaan-angsuran.update')
+        ->name('penerimaan-angsuran.update');
+
+    Route::delete('penerimaan-angsuran/{penerimaan_angsuran}', [PenerimaanAngsuranController::class, 'destroy'])
+        ->middleware('permission:penerimaan-angsuran.delete')
+        ->name('penerimaan-angsuran.destroy');
 
     // ===== Migrasi Data =====
     Route::get('migrasi', function () {
