@@ -133,7 +133,7 @@ const getTipeBadge = (tipe) => {
                             <SelectTrigger class="w-48"><SelectValue placeholder="Semua Produk" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="semua">Semua Produk</SelectItem>
-                                <SelectItem v-for="p in produks" :key="p.id" :value="String(p.id)">{{ p.nama }}</SelectItem>
+                                <SelectItem v-for="p in produks" :key="p.id" :value="String(p.id)">{{ p.nama_barang }}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -291,9 +291,9 @@ const getTipeBadge = (tipe) => {
                                 <tbody>
                                     <tr v-for="item in kartuItems" :key="item.id" class="transition-colors hover:bg-muted/40">
                                         <td class="border-b px-3 py-2.5">
-                                            <span class="bg-primary/10 text-primary inline-block rounded-md px-2 py-0.5 text-xs font-semibold">{{ item.produk?.kode || '-' }}</span>
+                                            <span class="bg-primary/10 text-primary inline-block rounded-md px-2 py-0.5 text-xs font-semibold">{{ item.produk?.kode_barang || '-' }}</span>
                                         </td>
-                                        <td class="border-b px-3 py-2.5 font-medium">{{ item.produk?.nama || '-' }}</td>
+                                        <td class="border-b px-3 py-2.5 font-medium">{{ item.produk?.nama_barang || '-' }}</td>
                                         <td class="border-b px-3 py-2.5">
                                             <span class="bg-muted inline-block rounded px-1.5 py-0.5 text-xs font-medium">{{ item.store?.nama || '-' }}</span>
                                         </td>
@@ -352,9 +352,9 @@ const getTipeBadge = (tipe) => {
                                     <tr v-for="item in mutasiItems" :key="item.id" class="transition-colors hover:bg-muted/40">
                                         <td class="border-b px-3 py-2.5">{{ formatDate(item.tanggal) }}</td>
                                         <td class="border-b px-3 py-2.5">
-                                            <span class="bg-primary/10 text-primary inline-block rounded-md px-2 py-0.5 text-xs font-semibold">{{ item.produk?.kode || '-' }}</span>
+                                            <span class="bg-primary/10 text-primary inline-block rounded-md px-2 py-0.5 text-xs font-semibold">{{ item.produk?.kode_barang || '-' }}</span>
                                         </td>
-                                        <td class="border-b px-3 py-2.5 font-medium">{{ item.produk?.nama || '-' }}</td>
+                                        <td class="border-b px-3 py-2.5 font-medium">{{ item.produk?.nama_barang || '-' }}</td>
                                         <td class="border-b px-3 py-2.5">
                                             <span class="bg-muted inline-block rounded px-1.5 py-0.5 text-xs font-medium">{{ item.store?.nama || '-' }}</span>
                                         </td>

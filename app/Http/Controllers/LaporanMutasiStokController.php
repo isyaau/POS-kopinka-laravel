@@ -26,7 +26,7 @@ class LaporanMutasiStokController extends Controller
 
         // ====== KARTU STOK: current stock levels ======
         $kartuQuery = Stok::query()
-            ->with(['produk:id,kode,nama,harga_beli,harga_jual', 'store:id,nama,kode'])
+            ->with(['produk:id,kode_barang,nama_barang,harga_beli,harga_jual', 'store:id,nama,kode'])
             ->orderByDesc('stok.stok');
 
         if ($storeId && $storeId !== 'all') {
@@ -40,8 +40,8 @@ class LaporanMutasiStokController extends Controller
         }
         if ($search) {
             $kartuQuery->whereHas('produk', function ($q) use ($search) {
-                $q->where('nama', 'ilike', "%{$search}%")
-                    ->orWhere('kode', 'ilike', "%{$search}%");
+                $q->where('nama_barang', 'ilike', "%{$search}%")
+                    ->orWhere('kode_barang', 'ilike', "%{$search}%");
             });
         }
 
@@ -65,7 +65,7 @@ class LaporanMutasiStokController extends Controller
 
         // ====== MUTASI STOK: movement history ======
         $mutasiQuery = StokRiwayat::query()
-            ->with(['produk:id,kode,nama', 'store:id,nama'])
+            ->with(['produk:id,kode_barang,nama_barang', 'store:id,nama'])
             ->whereBetween('stok_riwayat.tanggal', [$dari, $sampai])
             ->orderByDesc('stok_riwayat.tanggal')
             ->orderByDesc('stok_riwayat.id');
@@ -81,8 +81,8 @@ class LaporanMutasiStokController extends Controller
         }
         if ($search) {
             $mutasiQuery->whereHas('produk', function ($q) use ($search) {
-                $q->where('nama', 'ilike', "%{$search}%")
-                    ->orWhere('kode', 'ilike', "%{$search}%");
+                $q->where('nama_barang', 'ilike', "%{$search}%")
+                    ->orWhere('kode_barang', 'ilike', "%{$search}%");
             });
         }
 
@@ -113,7 +113,7 @@ class LaporanMutasiStokController extends Controller
             'kartuSummary' => $kartuSummary,
             'detailMutasi' => $detailMutasi,
             'mutasiSummary' => $mutasiSummary,
-            'produks' => Produk::orderBy('nama')->get(['id', 'kode', 'nama']),
+            'produks' => Produk::orderBy('nama_barang')->get(['id', 'kode_barang', 'nama_barang']),
             'stores' => Store::orderBy('nama')->get(['id', 'kode', 'nama']),
             'filters' => [
                 'tab' => $tab,
