@@ -39,6 +39,7 @@ use App\Http\Controllers\LaporanStokOpnameController;
 use App\Http\Controllers\LaporanPembayaranAngsuranHutangController;
 use App\Http\Controllers\LaporanPembayaranAngsuranPiutangController;
 use App\Http\Controllers\LaporanPengembalianLebihBayarPotongGajiController;
+use App\Http\Controllers\LaporanMarginRetailController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -515,6 +516,11 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('register-label-etalase-barang/{register_label_etalase_barang}', [RegisterLabelEtalaseBarangController::class, 'destroy'])
         ->middleware('permission:register-label-etalase-barang.delete')
         ->name('register-label-etalase-barang.destroy');
+
+    // ===== Laporan Margin Retail =====
+    Route::get('laporan-margin-retail', [LaporanMarginRetailController::class, 'index'])
+        ->middleware('permission:produk.view')
+        ->name('laporan-margin-retail.index');
 
     // ===== Laporan Pengembalian Lebih Bayar Potong Gaji =====
     Route::get('laporan-pengembalian-lebih-bayar-potong-gaji', [LaporanPengembalianLebihBayarPotongGajiController::class, 'index'])

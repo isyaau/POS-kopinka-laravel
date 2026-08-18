@@ -27,6 +27,7 @@ import {
     AlertTriangle,
     MailOpen,
     RotateCcw,
+    TrendingUp,
     Tag,
 } from 'lucide-vue-next'
 
@@ -67,6 +68,7 @@ export const navigation = [
             { title: 'Laporan Bayar Angsuran Hutang', href: '/laporan-pembayaran-angsuran-hutang', icon: Wallet, permission: 'pembayaran-hutang.view' },
             { title: 'Laporan Bayar Angsuran Piutang', href: '/laporan-pembayaran-angsuran-piutang', icon: Users, permission: 'penerimaan-angsuran.view' },
             { title: 'Laporan Pengembalian Lebih Bayar', href: '/laporan-pengembalian-lebih-bayar-potong-gaji', icon: RotateCcw, permission: 'penerimaan-angsuran.view' },
+            { title: 'Laporan Margin Retail', href: '/laporan-margin-retail', icon: TrendingUp, permission: 'produk.view' },
             { title: 'Biaya Operasional', href: '/biaya-operasional', icon: ReceiptText, permission: 'biaya-operasional.view' },
             { title: 'Hutang Supplier', href: '/pembayaran-hutang', icon: Wallet, permission: 'pembayaran-hutang.view' },
             { title: 'Konsinyi', href: '/konsinyi', icon: PackageX, permission: 'konsinyi.view' },
