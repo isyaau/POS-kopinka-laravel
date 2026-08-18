@@ -40,5 +40,11 @@ class DatabaseSeeder extends Seeder
             PembayaranHutangSeeder::class,
             KonsinyiSeeder::class,
             PenerimaanAngsuranSeeder::class,
+            RegisterTagihanPiutangSeeder::class,
+            PenerimaanAngsuranPotongGajiSeeder::class,
+            GagalDebetPiutangSeeder::class,
+            PengembalianLebihBayarPotongGajiSeeder::class,
+            RegisterLabelEtalaseBarangSeeder::class,
+        ]);
     }
 }

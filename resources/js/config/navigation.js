@@ -22,6 +22,12 @@ import {
     Wallet,
     PackageX,
     Landmark,
+    FileText,
+    CreditCard,
+    AlertTriangle,
+    MailOpen,
+    RotateCcw,
+    Tag,
 } from 'lucide-vue-next'
 
 export const navigation = [
@@ -50,11 +56,20 @@ export const navigation = [
     {
         title: 'Kantor Pusat',
         items: [
-            { title: 'Laporan', href: '/laporan', icon: BarChart3, permission: 'laporan.view' },
+            { title: 'Laporan Penjualan', href: '/laporan', icon: BarChart3, permission: 'laporan.view' },
+            { title: 'Laporan Pembelian', href: '/laporan-pembelian', icon: ShoppingCart, permission: 'pembelian.view' },
+            { title: 'Laporan Hutang Dagang', href: '/laporan-hutang-dagang', icon: Wallet, permission: 'pembayaran-hutang.view' },
+            { title: 'Laporan Piutang Anggota', href: '/laporan-piutang-anggota', icon: Users, permission: 'penerimaan-angsuran.view' },
+            { title: 'Laporan Mutasi & Stok', href: '/laporan-mutasi-stok', icon: Boxes, permission: 'stok.view' },
             { title: 'Biaya Operasional', href: '/biaya-operasional', icon: ReceiptText, permission: 'biaya-operasional.view' },
             { title: 'Hutang Supplier', href: '/pembayaran-hutang', icon: Wallet, permission: 'pembayaran-hutang.view' },
             { title: 'Konsinyi', href: '/konsinyi', icon: PackageX, permission: 'konsinyi.view' },
             { title: 'Penerimaan Angsuran', href: '/penerimaan-angsuran', icon: Landmark, permission: 'penerimaan-angsuran.view' },
+            { title: 'Register Tagihan Piutang', href: '/register-tagihan-piutang', icon: FileText, permission: 'register-tagihan-piutang.view' },
+            { title: 'Penerimaan Angsuran Potong Gaji', href: '/penerimaan-angsuran-potong-gaji', icon: CreditCard, permission: 'penerimaan-angsuran-potong-gaji.view' },
+            { title: 'Gagal Debet Piutang', href: '/gagal-debet-piutang', icon: AlertTriangle, permission: 'gagal-debet-piutang.view' },
+            { title: 'Pengembalian Lebih Bayar Potong Gaji', href: '/pengembalian-lebih-bayar-potong-gaji', icon: RotateCcw, permission: 'pengembalian-lebih-bayar-potong-gaji.view' },
+            { title: 'Register Label Etalase Barang', href: '/register-label-etalase-barang', icon: Tag, permission: 'register-label-etalase-barang.view' },
             { title: 'Toko', href: '/toko', icon: Store, permission: 'store.view' },
         ],
     },

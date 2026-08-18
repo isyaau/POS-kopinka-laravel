@@ -24,6 +24,15 @@ use App\Http\Controllers\BiayaOperasionalController;
 use App\Http\Controllers\PembayaranHutangController;
 use App\Http\Controllers\KonsinyiController;
 use App\Http\Controllers\PenerimaanAngsuranController;
+use App\Http\Controllers\PenerimaanAngsuranPotongGajiController;
+use App\Http\Controllers\RegisterTagihanPiutangController;
+use App\Http\Controllers\GagalDebetPiutangController;
+use App\Http\Controllers\PengembalianLebihBayarPotongGajiController;
+use App\Http\Controllers\RegisterLabelEtalaseBarangController;
+use App\Http\Controllers\LaporanPembelianController;
+use App\Http\Controllers\LaporanHutangDagangController;
+use App\Http\Controllers\LaporanPiutangAnggotaController;
+use App\Http\Controllers\LaporanMutasiStokController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -415,6 +424,111 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('penerimaan-angsuran/{penerimaan_angsuran}', [PenerimaanAngsuranController::class, 'destroy'])
         ->middleware('permission:penerimaan-angsuran.delete')
         ->name('penerimaan-angsuran.destroy');
+
+    // ===== Register Tagihan Piutang Dagang (Potong Gaji) (CRUD + log user) =====
+    Route::get('register-tagihan-piutang', [RegisterTagihanPiutangController::class, 'index'])
+        ->middleware('permission:register-tagihan-piutang.view')
+        ->name('register-tagihan-piutang.index');
+
+    Route::post('register-tagihan-piutang', [RegisterTagihanPiutangController::class, 'store'])
+        ->middleware('permission:register-tagihan-piutang.create')
+        ->name('register-tagihan-piutang.store');
+
+    Route::put('register-tagihan-piutang/{register_tagihan_piutang}', [RegisterTagihanPiutangController::class, 'update'])
+        ->middleware('permission:register-tagihan-piutang.update')
+        ->name('register-tagihan-piutang.update');
+
+    Route::delete('register-tagihan-piutang/{register_tagihan_piutang}', [RegisterTagihanPiutangController::class, 'destroy'])
+        ->middleware('permission:register-tagihan-piutang.delete')
+        ->name('register-tagihan-piutang.destroy');
+
+    // ===== Penerimaan Angsuran Piutang Dagang Potong Gaji (CRUD + log user) =====
+    Route::get('penerimaan-angsuran-potong-gaji', [PenerimaanAngsuranPotongGajiController::class, 'index'])
+        ->middleware('permission:penerimaan-angsuran-potong-gaji.view')
+        ->name('penerimaan-angsuran-potong-gaji.index');
+
+    Route::post('penerimaan-angsuran-potong-gaji', [PenerimaanAngsuranPotongGajiController::class, 'store'])
+        ->middleware('permission:penerimaan-angsuran-potong-gaji.create')
+        ->name('penerimaan-angsuran-potong-gaji.store');
+
+    Route::put('penerimaan-angsuran-potong-gaji/{penerimaan_angsuran_potong_gaji}', [PenerimaanAngsuranPotongGajiController::class, 'update'])
+        ->middleware('permission:penerimaan-angsuran-potong-gaji.update')
+        ->name('penerimaan-angsuran-potong-gaji.update');
+
+    Route::delete('penerimaan-angsuran-potong-gaji/{penerimaan_angsuran_potong_gaji}', [PenerimaanAngsuranPotongGajiController::class, 'destroy'])
+        ->middleware('permission:penerimaan-angsuran-potong-gaji.delete')
+        ->name('penerimaan-angsuran-potong-gaji.destroy');
+
+    // ===== Gagal Debet Tagihan Piutang (CRUD + log user) =====
+    Route::get('gagal-debet-piutang', [GagalDebetPiutangController::class, 'index'])
+        ->middleware('permission:gagal-debet-piutang.view')
+        ->name('gagal-debet-piutang.index');
+
+    Route::post('gagal-debet-piutang', [GagalDebetPiutangController::class, 'store'])
+        ->middleware('permission:gagal-debet-piutang.create')
+        ->name('gagal-debet-piutang.store');
+
+    Route::put('gagal-debet-piutang/{gagal_debet_piutang}', [GagalDebetPiutangController::class, 'update'])
+        ->middleware('permission:gagal-debet-piutang.update')
+        ->name('gagal-debet-piutang.update');
+
+    Route::delete('gagal-debet-piutang/{gagal_debet_piutang}', [GagalDebetPiutangController::class, 'destroy'])
+        ->middleware('permission:gagal-debet-piutang.delete')
+        ->name('gagal-debet-piutang.destroy');
+
+    // ===== Pengembalian Lebih Bayar Potong Gaji (CRUD + log user) =====
+    Route::get('pengembalian-lebih-bayar-potong-gaji', [PengembalianLebihBayarPotongGajiController::class, 'index'])
+        ->middleware('permission:pengembalian-lebih-bayar-potong-gaji.view')
+        ->name('pengembalian-lebih-bayar-potong-gaji.index');
+
+    Route::post('pengembalian-lebih-bayar-potong-gaji', [PengembalianLebihBayarPotongGajiController::class, 'store'])
+        ->middleware('permission:pengembalian-lebih-bayar-potong-gaji.create')
+        ->name('pengembalian-lebih-bayar-potong-gaji.store');
+
+    Route::put('pengembalian-lebih-bayar-potong-gaji/{pengembalian_lebih_bayar_potong_gaji}', [PengembalianLebihBayarPotongGajiController::class, 'update'])
+        ->middleware('permission:pengembalian-lebih-bayar-potong-gaji.update')
+        ->name('pengembalian-lebih-bayar-potong-gaji.update');
+
+    Route::delete('pengembalian-lebih-bayar-potong-gaji/{pengembalian_lebih_bayar_potong_gaji}', [PengembalianLebihBayarPotongGajiController::class, 'destroy'])
+        ->middleware('permission:pengembalian-lebih-bayar-potong-gaji.delete')
+        ->name('pengembalian-lebih-bayar-potong-gaji.destroy');
+
+    // ===== Register Label Etalase Barang (CRUD + log user) =====
+    Route::get('register-label-etalase-barang', [RegisterLabelEtalaseBarangController::class, 'index'])
+        ->middleware('permission:register-label-etalase-barang.view')
+        ->name('register-label-etalase-barang.index');
+
+    Route::post('register-label-etalase-barang', [RegisterLabelEtalaseBarangController::class, 'store'])
+        ->middleware('permission:register-label-etalase-barang.create')
+        ->name('register-label-etalase-barang.store');
+
+    Route::put('register-label-etalase-barang/{register_label_etalase_barang}', [RegisterLabelEtalaseBarangController::class, 'update'])
+        ->middleware('permission:register-label-etalase-barang.update')
+        ->name('register-label-etalase-barang.update');
+
+    Route::delete('register-label-etalase-barang/{register_label_etalase_barang}', [RegisterLabelEtalaseBarangController::class, 'destroy'])
+        ->middleware('permission:register-label-etalase-barang.delete')
+        ->name('register-label-etalase-barang.destroy');
+
+    // ===== Laporan Mutasi & Kartu Stok =====
+    Route::get('laporan-mutasi-stok', [LaporanMutasiStokController::class, 'index'])
+        ->middleware('permission:stok.view')
+        ->name('laporan-mutasi-stok.index');
+
+    // ===== Laporan Piutang Anggota =====
+    Route::get('laporan-piutang-anggota', [LaporanPiutangAnggotaController::class, 'index'])
+        ->middleware('permission:penerimaan-angsuran.view')
+        ->name('laporan-piutang-anggota.index');
+
+    // ===== Laporan Hutang Dagang =====
+    Route::get('laporan-hutang-dagang', [LaporanHutangDagangController::class, 'index'])
+        ->middleware('permission:pembayaran-hutang.view')
+        ->name('laporan-hutang-dagang.index');
+
+    // ===== Laporan Pembelian Barang Dagang =====
+    Route::get('laporan-pembelian', [LaporanPembelianController::class, 'index'])
+        ->middleware('permission:pembelian.view')
+        ->name('laporan-pembelian.index');
 
     // ===== Migrasi Data =====
     Route::get('migrasi', function () {
