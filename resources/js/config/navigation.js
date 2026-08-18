@@ -61,6 +61,8 @@ export const navigation = [
             { title: 'Laporan Hutang Dagang', href: '/laporan-hutang-dagang', icon: Wallet, permission: 'pembayaran-hutang.view' },
             { title: 'Laporan Piutang Anggota', href: '/laporan-piutang-anggota', icon: Users, permission: 'penerimaan-angsuran.view' },
             { title: 'Laporan Mutasi & Stok', href: '/laporan-mutasi-stok', icon: Boxes, permission: 'stok.view' },
+            { title: 'Laporan Mutasi Barang Masuk', href: '/laporan-mutasi-barang-masuk', icon: PackageCheck, permission: 'stok.view' },
+            { title: 'Laporan Mutasi Barang Keluar', href: '/laporan-mutasi-barang-keluar', icon: PackageX, permission: 'stok.view' },
             { title: 'Biaya Operasional', href: '/biaya-operasional', icon: ReceiptText, permission: 'biaya-operasional.view' },
             { title: 'Hutang Supplier', href: '/pembayaran-hutang', icon: Wallet, permission: 'pembayaran-hutang.view' },
             { title: 'Konsinyi', href: '/konsinyi', icon: PackageX, permission: 'konsinyi.view' },

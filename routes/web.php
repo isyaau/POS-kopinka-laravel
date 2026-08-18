@@ -33,6 +33,8 @@ use App\Http\Controllers\LaporanPembelianController;
 use App\Http\Controllers\LaporanHutangDagangController;
 use App\Http\Controllers\LaporanPiutangAnggotaController;
 use App\Http\Controllers\LaporanMutasiStokController;
+use App\Http\Controllers\LaporanMutasiBarangMasukController;
+use App\Http\Controllers\LaporanMutasiBarangKeluarController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -509,6 +511,16 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('register-label-etalase-barang/{register_label_etalase_barang}', [RegisterLabelEtalaseBarangController::class, 'destroy'])
         ->middleware('permission:register-label-etalase-barang.delete')
         ->name('register-label-etalase-barang.destroy');
+
+    // ===== Laporan Mutasi Barang Keluar =====
+    Route::get('laporan-mutasi-barang-keluar', [LaporanMutasiBarangKeluarController::class, 'index'])
+        ->middleware('permission:stok.view')
+        ->name('laporan-mutasi-barang-keluar.index');
+
+    // ===== Laporan Mutasi Barang Masuk =====
+    Route::get('laporan-mutasi-barang-masuk', [LaporanMutasiBarangMasukController::class, 'index'])
+        ->middleware('permission:stok.view')
+        ->name('laporan-mutasi-barang-masuk.index');
 
     // ===== Laporan Mutasi & Kartu Stok =====
     Route::get('laporan-mutasi-stok', [LaporanMutasiStokController::class, 'index'])
