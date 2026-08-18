@@ -36,6 +36,9 @@ use App\Http\Controllers\LaporanMutasiStokController;
 use App\Http\Controllers\LaporanMutasiBarangMasukController;
 use App\Http\Controllers\LaporanMutasiBarangKeluarController;
 use App\Http\Controllers\LaporanStokOpnameController;
+use App\Http\Controllers\LaporanPembayaranAngsuranHutangController;
+use App\Http\Controllers\LaporanPembayaranAngsuranPiutangController;
+use App\Http\Controllers\LaporanPengembalianLebihBayarPotongGajiController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -512,6 +515,21 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('register-label-etalase-barang/{register_label_etalase_barang}', [RegisterLabelEtalaseBarangController::class, 'destroy'])
         ->middleware('permission:register-label-etalase-barang.delete')
         ->name('register-label-etalase-barang.destroy');
+
+    // ===== Laporan Pengembalian Lebih Bayar Potong Gaji =====
+    Route::get('laporan-pengembalian-lebih-bayar-potong-gaji', [LaporanPengembalianLebihBayarPotongGajiController::class, 'index'])
+        ->middleware('permission:penerimaan-angsuran.view')
+        ->name('laporan-pengembalian-lebih-bayar-potong-gaji.index');
+
+    // ===== Laporan Pembayaran Angsuran Piutang =====
+    Route::get('laporan-pembayaran-angsuran-piutang', [LaporanPembayaranAngsuranPiutangController::class, 'index'])
+        ->middleware('permission:penerimaan-angsuran.view')
+        ->name('laporan-pembayaran-angsuran-piutang.index');
+
+    // ===== Laporan Pembayaran Angsuran Hutang =====
+    Route::get('laporan-pembayaran-angsuran-hutang', [LaporanPembayaranAngsuranHutangController::class, 'index'])
+        ->middleware('permission:pembayaran-hutang.view')
+        ->name('laporan-pembayaran-angsuran-hutang.index');
 
     // ===== Laporan Stok Opname Barang Persediaan =====
     Route::get('laporan-stok-opname', [LaporanStokOpnameController::class, 'index'])
