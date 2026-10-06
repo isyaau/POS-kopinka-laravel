@@ -13,6 +13,7 @@
 /.vscode
 /.zed
 /auth.json
+/deploy/php.path
 /node_modules
 /public/build
 /public/fonts-manifest.dev.json
