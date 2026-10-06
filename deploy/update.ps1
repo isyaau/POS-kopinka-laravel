@@ -115,7 +115,12 @@ try {
         }
     }
 
-    Invoke-Production -Php $php -Arguments @('artisan', 'migrate', '--force', '--env=production') | Out-Null
+    $migrateCode = Invoke-Production -Php $php -Arguments @('artisan', 'migrate', '--force', '--env=production')
+    if ($migrateCode -ne 0) {
+        Write-Log "update FAILED at migrate (exit $migrateCode), database may be partially migrated"
+        exit $migrateCode
+    }
+
     Invoke-Production -Php $php -Arguments @('artisan', 'queue:restart', '--env=production') | Out-Null
 
     $after = (& $git rev-parse HEAD 2>$null | Out-String).Trim()
