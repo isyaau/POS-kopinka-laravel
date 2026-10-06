@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
@@ -7,6 +7,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import Kbd from '@/components/Kbd.vue'
+import ShortcutHelpDialog from '@/components/ShortcutHelpDialog.vue'
+import { useHotkeys } from '@/composables/useHotkeys'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -34,6 +37,7 @@ import {
     FileSpreadsheet,
     Eye,
     Printer,
+    Keyboard,
 } from 'lucide-vue-next'
 import { printStruk } from '@/lib/struk'
 
@@ -148,6 +152,124 @@ const activeQuery = computed(() => ({
 
 const totalPembayaran = (t) =>
     Number(t.cash || 0) + Number(t.qris || 0) + Number(t.edc || 0) + Number(t.voucher || 0) + Number(t.piutang || 0)
+
+// ===== Pintasan papan ketik =====
+const activeRow = ref(-1)
+const helpOpen = ref(false)
+
+const hasRow = computed(() => activeRow.value >= 0 && !!items.value[activeRow.value])
+const activeItem = computed(() => (hasRow.value ? items.value[activeRow.value] : null))
+
+const focusSearch = () => {
+    const el = document.getElementById('transaksi-search')
+    if (!el) return
+    el.focus()
+    el.select?.()
+}
+
+const scrollActiveRow = () =>
+    nextTick(() => {
+        document.querySelector(`[data-row-index="${activeRow.value}"]`)?.scrollIntoView({ block: 'nearest' })
+    })
+
+const moveRow = (delta) => {
+    if (!items.value.length) return
+    const next =
+        activeRow.value < 0 ? (delta > 0 ? 0 : items.value.length - 1) : activeRow.value + delta
+    activeRow.value = Math.min(Math.max(next, 0), items.value.length - 1)
+    scrollActiveRow()
+}
+
+const clearRow = () => {
+    activeRow.value = -1
+}
+
+const escapeAction = () => {
+    if (search.value) {
+        resetSearch()
+        document.getElementById('transaksi-search')?.blur()
+        return
+    }
+    clearRow()
+}
+
+watch(items, () => clearRow())
+
+const anyModalOpen = computed(
+    () => createOpen.value || editOpen.value || deleteOpen.value || importOpen.value || detailOpen.value,
+)
+
+useHotkeys(
+    [
+        { key: '/', description: 'Fokus ke pencarian', group: 'Navigasi', handler: focusSearch },
+        {
+            key: 'ArrowDown',
+            description: 'Pilih baris berikutnya',
+            group: 'Navigasi',
+            allowInInput: true,
+            handler: () => moveRow(1),
+        },
+        {
+            key: 'ArrowUp',
+            description: 'Pilih baris sebelumnya',
+            group: 'Navigasi',
+            allowInInput: true,
+            handler: () => moveRow(-1),
+        },
+        {
+            key: 'Escape',
+            description: 'Bersihkan pencarian / batalkan pilihan',
+            group: 'Navigasi',
+            allowInInput: true,
+            handler: escapeAction,
+        },
+        { key: 'n', description: 'Tambah transaksi', group: 'Aksi', handler: openCreate },
+        {
+            key: 'i',
+            ctrl: true,
+            description: 'Import transaksi',
+            group: 'Aksi',
+            handler: () => (importOpen.value = true),
+        },
+        { key: 'e', ctrl: true, description: 'Export Excel', group: 'Aksi', handler: handleExport },
+        {
+            key: 'Enter',
+            description: 'Buka detail baris terpilih',
+            group: 'Baris terpilih',
+            allowInInput: true,
+            when: hasRow,
+            handler: () => openDetail(activeItem.value),
+        },
+        {
+            key: 'e',
+            description: 'Edit baris terpilih',
+            group: 'Baris terpilih',
+            when: hasRow,
+            handler: () => openEdit(activeItem.value),
+        },
+        {
+            key: 'p',
+            description: 'Cetak ulang struk baris terpilih',
+            group: 'Baris terpilih',
+            when: hasRow,
+            handler: () => cetakStruk(activeItem.value),
+        },
+        {
+            key: 'Delete',
+            description: 'Hapus baris terpilih',
+            group: 'Baris terpilih',
+            when: hasRow,
+            handler: () => confirmDelete(activeItem.value),
+        },
+        {
+            key: '?',
+            description: 'Buka / tutup daftar pintasan',
+            group: 'Bantuan',
+            handler: () => (helpOpen.value = !helpOpen.value),
+        },
+    ],
+    { enabled: () => !anyModalOpen.value },
+)
 </script>
 
 <template>
@@ -157,11 +279,17 @@ const totalPembayaran = (t) =>
         <PageHeader title="Transaksi" description="Kelola data transaksi penjualan per nota.">
             <template #actions>
                 <div class="flex items-center gap-2">
+                    <Button variant="ghost" class="text-muted-foreground" @click="helpOpen = true">
+                        <Keyboard class="size-4" />
+                        Pintasan
+                        <Kbd keys="?" />
+                    </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
                             <Button variant="outline">
                                 <Download class="size-4" />
                                 Export
+                                <Kbd keys="Ctrl+E" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-44">
@@ -174,10 +302,12 @@ const totalPembayaran = (t) =>
                     <Button variant="outline" @click="importOpen = true">
                         <Upload class="size-4" />
                         Import
+                        <Kbd keys="Ctrl+I" />
                     </Button>
                     <Button @click="openCreate">
                         <Plus class="size-4" />
                         Tambah Transaksi
+                        <Kbd keys="N" class="bg-primary-foreground/20 border-transparent text-primary-foreground" />
                     </Button>
                 </div>
             </template>
@@ -190,6 +320,7 @@ const totalPembayaran = (t) =>
                     <div class="relative w-full lg:max-w-xs">
                         <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                         <Input
+                            id="transaksi-search"
                             v-model="search"
                             placeholder="Cari nota, anggota, kasir... (ketik langsung)"
                             class="pl-9"
@@ -203,6 +334,11 @@ const totalPembayaran = (t) =>
                         >
                             <X class="size-4" />
                         </button>
+                        <Kbd
+                            v-else
+                            keys="/"
+                            class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 opacity-70"
+                        />
                     </div>
                     <p class="text-muted-foreground text-sm">
                         {{ pagination.total }} transaksi
@@ -237,7 +373,14 @@ const totalPembayaran = (t) =>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in items" :key="item.id" class="hover:bg-muted/40 transition-colors">
+                                <tr
+                                    v-for="(item, index) in items"
+                                    :key="item.id"
+                                    :data-row-index="index"
+                                    class="hover:bg-muted/40 cursor-default transition-colors"
+                                    :class="index === activeRow ? 'bg-accent ring-1 ring-inset ring-primary/30' : ''"
+                                    @click="activeRow = index"
+                                >
                                     <td class="border-b px-3 py-3">{{ item.no_kasir || '-' }}</td>
                                     <td class="border-b px-3 py-3">
                                         <span class="bg-primary/10 text-primary inline-block rounded-md px-2 py-0.5 text-xs font-semibold">
@@ -352,5 +495,6 @@ const totalPembayaran = (t) =>
         <DeleteTransaksiModal :open="deleteOpen" :transaksi="deletingTransaksi" @update:open="deleteOpen = $event" />
         <ImportTransaksiModal :open="importOpen" @update:open="importOpen = $event" />
         <DetailTransaksiModal :open="detailOpen" :transaksi="selectedTransaksi" @update:open="detailOpen = $event" />
+        <ShortcutHelpDialog :open="helpOpen" @update:open="helpOpen = $event" />
     </AppLayout>
 </template>

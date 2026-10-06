@@ -1,11 +1,14 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Head, useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import Kbd from '@/components/Kbd.vue'
+import ShortcutHelpDialog from '@/components/ShortcutHelpDialog.vue'
+import { useHotkeys } from '@/composables/useHotkeys'
 import {
     Search,
     ShoppingCart,
@@ -26,6 +29,7 @@ import {
     Maximize2,
     CheckCheck,
     Printer,
+    Keyboard,
 } from 'lucide-vue-next'
 import { toast } from '@/components/ui/sonner'
 import { printStruk } from '@/lib/struk'
@@ -397,6 +401,173 @@ watch(piutangMode, (on) => {
         selectedVouchers.value = []
     }
 })
+
+// ===== Pintasan papan ketik =====
+const helpOpen = ref(false)
+const activeProduct = ref(-1)
+
+const productResultsOpen = computed(() => !!search.value.trim() && produkDitemukan.value.length > 0)
+
+// Navigasi keyboard hanya aktif saat fokus di pencarian produk (atau di body)
+const productSearchFocused = () =>
+    document.activeElement?.id === 'pos-product-search' || document.activeElement === document.body
+
+const productNavActive = () => productResultsOpen.value && productSearchFocused()
+
+const focusElement = (id) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    el.focus()
+    el.select?.()
+}
+
+const focusProductSearch = () => focusElement('pos-product-search')
+
+const moveProduct = (delta) => {
+    if (!productResultsOpen.value) return
+    const length = produkDitemukan.value.length
+    const next =
+        activeProduct.value < 0
+            ? delta > 0
+                ? 0
+                : length - 1
+            : activeProduct.value + delta
+    activeProduct.value = Math.min(Math.max(next, 0), length - 1)
+
+    nextTick(() => {
+        document
+            .querySelector(`[data-product-index="${activeProduct.value}"]`)
+            ?.scrollIntoView({ block: 'nearest' })
+    })
+}
+
+const chooseActiveProduct = () => {
+    if (!productResultsOpen.value) return
+    const produk = produkDitemukan.value[activeProduct.value]
+    if (!produk) return
+    pilihProduk(produk)
+    activeProduct.value = -1
+}
+
+const clearProductSearch = () => {
+    search.value = ''
+    activeProduct.value = -1
+    document.getElementById('pos-product-search')?.blur()
+}
+
+watch(search, () => {
+    activeProduct.value = -1
+})
+
+watch(produkDitemukan, (list) => {
+    if (activeProduct.value >= list.length) activeProduct.value = list.length - 1
+})
+
+useHotkeys(
+    [
+        { key: '/', description: 'Fokus ke pencarian produk', group: 'Navigasi', handler: focusProductSearch },
+        {
+            key: 'ArrowDown',
+            description: 'Pilih produk dari hasil pencarian',
+            group: 'Navigasi',
+            allowInInput: true,
+            when: productNavActive,
+            handler: () => moveProduct(1),
+        },
+        {
+            key: 'ArrowUp',
+            description: 'Pilih produk sebelumnya',
+            group: 'Navigasi',
+            allowInInput: true,
+            when: productNavActive,
+            handler: () => moveProduct(-1),
+        },
+        {
+            key: 'Enter',
+            description: 'Masukkan produk terpilih ke keranjang',
+            group: 'Navigasi',
+            allowInInput: true,
+            when: productNavActive,
+            handler: chooseActiveProduct,
+        },
+        {
+            key: 'Escape',
+            description: 'Bersihkan pencarian produk',
+            group: 'Navigasi',
+            allowInInput: true,
+            when: () => (!!search.value || activeProduct.value >= 0) && productSearchFocused(),
+            handler: clearProductSearch,
+        },
+        { key: 'a', description: 'Fokus pencarian anggota', group: 'Transaksi', handler: () => focusElement('pos-anggota-search') },
+        { key: 'v', description: 'Fokus input voucher', group: 'Transaksi', handler: () => focusElement('pos-voucher-input') },
+        {
+            key: 'Enter',
+            ctrl: true,
+            description: 'Buka konfirmasi pembayaran',
+            group: 'Transaksi',
+            allowInInput: true,
+            when: () => cart.value.length > 0,
+            handler: openCheckout,
+        },
+        {
+            key: '?',
+            description: 'Buka / tutup daftar pintasan',
+            group: 'Bantuan',
+            handler: () => (helpOpen.value = !helpOpen.value),
+        },
+    ],
+    { enabled: () => !checkoutOpen.value && !produkModalOpen.value },
+)
+
+useHotkeys(
+    [
+        {
+            key: 'Enter',
+            description: 'Bayar & simpan transaksi',
+            group: 'Checkout',
+            allowInInput: true,
+            when: () => !checkoutDone.value && !form.processing,
+            handler: submitCheckout,
+        },
+        {
+            key: 'Enter',
+            description: 'Mulai transaksi baru',
+            group: 'Checkout',
+            allowInInput: true,
+            when: () => checkoutDone.value,
+            handler: newTransaction,
+        },
+        {
+            key: 'p',
+            ctrl: true,
+            description: 'Cetak struk transaksi terakhir',
+            group: 'Checkout',
+            when: () => !!lastTransaksi.value,
+            handler: cetakStrukAkhir,
+        },
+        {
+            key: 'Escape',
+            description: 'Tutup konfirmasi checkout',
+            group: 'Checkout',
+            allowInInput: true,
+            handler: () => (checkoutDone.value ? newTransaction() : (checkoutOpen.value = false)),
+        },
+    ],
+    { enabled: () => checkoutOpen.value },
+)
+
+useHotkeys(
+    [
+        {
+            key: 'Escape',
+            description: 'Tutup pencarian produk',
+            group: 'Cari produk',
+            allowInInput: true,
+            handler: () => (produkModalOpen.value = false),
+        },
+    ],
+    { enabled: () => produkModalOpen.value },
+)
 </script>
 
 <template>
@@ -419,6 +590,11 @@ watch(piutangMode, (on) => {
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" class="text-muted-foreground gap-1.5" @click="helpOpen = true">
+                        <Keyboard class="size-4" />
+                        Pintasan
+                        <Kbd keys="?" />
+                    </Button>
                     <Badge variant="outline" class="gap-1.5 text-xs">
                         <Receipt class="size-3.5" />
                         <span class="text-muted-foreground">Nota:</span>
@@ -446,9 +622,15 @@ watch(piutangMode, (on) => {
                         <div class="relative min-w-0 flex-1">
                             <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
                             <Input
+                                id="pos-product-search"
                                 v-model="search"
                                 placeholder="Cari produk (ketik nama / kode)..."
-                                class="h-8 bg-background pl-8 text-sm"
+                                class="h-8 bg-background pr-8 pl-8 text-sm"
+                            />
+                            <Kbd
+                                v-if="!search.trim()"
+                                keys="/"
+                                class="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 opacity-70"
                             />
                             <!-- Dropdown hasil -->
                             <div
@@ -456,12 +638,17 @@ watch(piutangMode, (on) => {
                                 class="bg-popover text-popover-foreground absolute top-full right-0 left-0 z-30 mt-1 flex max-h-56 flex-col gap-0.5 overflow-y-auto rounded-lg border p-1 shadow-lg"
                             >
                                 <button
-                                    v-for="p in produkDitemukan"
+                                    v-for="(p, index) in produkDitemukan"
                                     :key="p.id"
                                     type="button"
-                                    class="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1.5 text-left"
-                                    :class="{ 'opacity-40 cursor-not-allowed': Number(p.stok) <= 0 }"
+                                    :data-product-index="index"
+                                    class="flex items-center gap-2 rounded-md px-2 py-1.5 text-left"
+                                    :class="[
+                                        index === activeProduct ? 'bg-accent' : 'hover:bg-accent',
+                                        Number(p.stok) <= 0 ? 'cursor-not-allowed opacity-40' : '',
+                                    ]"
                                     :disabled="Number(p.stok) <= 0"
+                                    @mouseenter="activeProduct = index"
                                     @click="pilihProduk(p)"
                                 >
                                     <Package class="text-primary size-3.5 shrink-0" />
@@ -557,6 +744,7 @@ watch(piutangMode, (on) => {
                         <div class="relative">
                             <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
                             <Input
+                                id="pos-anggota-search"
                                 v-model="anggotaSearch"
                                 placeholder="Nama / NIP..."
                                 class="h-8 bg-background pl-8 text-xs"
@@ -591,6 +779,7 @@ watch(piutangMode, (on) => {
                         </div>
                         <div class="flex gap-1">
                             <Input
+                                id="pos-voucher-input"
                                 v-model="voucherInput"
                                 placeholder="Kode / barcode voucher..."
                                 class="h-8 bg-background text-[11px]"
@@ -702,9 +891,14 @@ watch(piutangMode, (on) => {
                     </div>
 
                     <!-- Checkout -->
-                    <Button class="h-10 w-full text-sm" :disabled="cart.length === 0 || bayarKurang > 0" @click="openCheckout">
+                    <Button class="h-10 w-full gap-2 text-sm" :disabled="cart.length === 0 || bayarKurang > 0" @click="openCheckout">
                         <CheckCircle2 class="size-4" />
                         Checkout • {{ formatRupiah(totalJual) }}
+                        <Kbd
+                            v-if="cart.length && bayarKurang <= 0"
+                            keys="Ctrl+Enter"
+                            class="bg-primary-foreground/20 border-transparent text-primary-foreground"
+                        />
                     </Button>
                 </div>
             </div>
@@ -767,6 +961,15 @@ watch(piutangMode, (on) => {
                             {{ form.processing ? 'Menyimpan...' : 'Bayar & Simpan' }}
                         </Button>
                     </div>
+
+                    <div class="text-muted-foreground mt-3 flex items-center justify-center gap-4 text-[11px]">
+                        <span class="flex items-center gap-1.5">
+                            Bayar <Kbd keys="Enter" />
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            Batal <Kbd keys="Esc" />
+                        </span>
+                    </div>
                 </template>
 
                 <template v-else>
@@ -785,6 +988,14 @@ watch(piutangMode, (on) => {
                             <Printer class="size-4" />
                             Cetak Struk
                         </Button>
+                        <p class="text-muted-foreground mt-1 flex items-center justify-center gap-4 text-[11px]">
+                            <span class="flex items-center gap-1.5">
+                                Transaksi baru <Kbd keys="Enter" />
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                Cetak struk <Kbd keys="Ctrl+P" />
+                            </span>
+                        </p>
                     </div>
                 </template>
             </div>
@@ -884,5 +1095,7 @@ watch(piutangMode, (on) => {
                 </div>
             </div>
         </div>
+
+        <ShortcutHelpDialog :open="helpOpen" @update:open="helpOpen = $event" />
     </AppLayout>
 </template>
