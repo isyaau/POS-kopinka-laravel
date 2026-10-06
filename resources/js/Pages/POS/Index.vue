@@ -510,7 +510,8 @@ useHotkeys(
             handler: openCheckout,
         },
         {
-            key: '?',
+            key: 'F1',
+            aliases: ['?'],
             description: 'Buka / tutup daftar pintasan',
             group: 'Bantuan',
             handler: () => (helpOpen.value = !helpOpen.value),
@@ -593,7 +594,7 @@ useHotkeys(
                     <Button variant="ghost" size="sm" class="text-muted-foreground gap-1.5" @click="helpOpen = true">
                         <Keyboard class="size-4" />
                         Pintasan
-                        <Kbd keys="?" />
+                        <Kbd :keys="[['F1'], ['?']]" />
                     </Button>
                     <Badge variant="outline" class="gap-1.5 text-xs">
                         <Receipt class="size-3.5" />

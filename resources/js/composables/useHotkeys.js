@@ -28,6 +28,8 @@ const KEY_LABELS = {
     mod: isMac ? '⌘' : 'Ctrl',
 }
 
+for (let i = 1; i <= 12; i++) KEY_LABELS[`f${i}`] = `F${i}`
+
 function labelFor(token) {
     const key = String(token).toLowerCase()
     if (KEY_LABELS[key]) return KEY_LABELS[key]
@@ -35,7 +37,11 @@ function labelFor(token) {
     return String(token)
 }
 
-export function displayKeys(binding) {
+function bindingsFor(binding) {
+    return [binding, ...(binding.aliases || []).map((alias) => (typeof alias === 'string' ? { key: alias } : alias))]
+}
+
+function tokensFor(binding) {
     const tokens = []
     if (binding.mod) tokens.push('mod')
     if (binding.ctrl) tokens.push('ctrl')
@@ -44,6 +50,10 @@ export function displayKeys(binding) {
     if (binding.shift) tokens.push('shift')
     tokens.push(binding.key)
     return tokens.map(labelFor)
+}
+
+export function displayKeys(binding) {
+    return bindingsFor(binding).map(tokensFor)
 }
 
 function isEditableTarget(target) {
@@ -56,7 +66,7 @@ function normalize(key) {
     return String(key ?? '').toLowerCase()
 }
 
-function matches(binding, event) {
+function matchBinding(binding, event) {
     const want = normalize(binding.key)
     if (!want) return false
 
@@ -86,6 +96,10 @@ function matches(binding, event) {
     }
 
     return true
+}
+
+function matches(binding, event) {
+    return bindingsFor(binding).some((b) => matchBinding(b, event))
 }
 
 /**

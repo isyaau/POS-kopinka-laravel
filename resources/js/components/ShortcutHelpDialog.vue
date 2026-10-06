@@ -40,7 +40,7 @@ const totalShortcuts = computed(() => hotkeyRegistry.value.length)
                     <div class="flex flex-col gap-1.5">
                         <DialogTitle>Pintasan Papan Ketik</DialogTitle>
                         <DialogDescription class="flex items-center gap-1.5 leading-relaxed">
-                            Tekan <Kbd keys="?" /> kapan saja untuk membuka daftar ini.
+                            Tekan <Kbd keys="F1" /> kapan saja untuk membuka daftar ini.
                         </DialogDescription>
                     </div>
                 </div>

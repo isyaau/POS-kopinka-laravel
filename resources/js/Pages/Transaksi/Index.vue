@@ -262,7 +262,8 @@ useHotkeys(
             handler: () => confirmDelete(activeItem.value),
         },
         {
-            key: '?',
+            key: 'F1',
+            aliases: ['?'],
             description: 'Buka / tutup daftar pintasan',
             group: 'Bantuan',
             handler: () => (helpOpen.value = !helpOpen.value),
@@ -282,7 +283,7 @@ useHotkeys(
                     <Button variant="ghost" class="text-muted-foreground" @click="helpOpen = true">
                         <Keyboard class="size-4" />
                         Pintasan
-                        <Kbd keys="?" />
+                        <Kbd :keys="[['F1'], ['?']]" />
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
