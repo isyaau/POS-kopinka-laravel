@@ -35,13 +35,24 @@ Write-Log "LAN IP: $ip"
 
 $envFile = Join-Path $Root '.env.production'
 if (-not (Test-Path -LiteralPath $envFile)) {
-    Copy-Item -LiteralPath (Join-Path $Root '.env') -Destination $envFile
+    $source = @('.env', '.env.example') |
+        ForEach-Object { Join-Path $Root $_ } |
+        Where-Object { Test-Path -LiteralPath $_ } |
+        Select-Object -First 1
+    if (-not $source) { throw '.env / .env.example not found' }
+
+    Copy-Item -LiteralPath $source -Destination $envFile
     $content = Get-Content -LiteralPath $envFile -Raw
     $content = [regex]::Replace($content, '(?m)^APP_ENV=.*$', 'APP_ENV=production')
     $content = [regex]::Replace($content, '(?m)^APP_DEBUG=.*$', 'APP_DEBUG=false')
     $content = [regex]::Replace($content, '(?m)^APP_URL=.*$', "APP_URL=http://$ip")
     Set-Content -LiteralPath $envFile -Value $content -NoNewline
-    Write-Log ".env.production created"
+    Write-Log ".env.production created (source: $(Split-Path -Leaf $source))"
+
+    if ($content -notmatch '(?m)^APP_KEY=base64:.+$') {
+        $keyCode = Invoke-Production -Php $php -Arguments @('artisan', 'key:generate', '--env=production', '--force')
+        if ($keyCode -eq 0) { Write-Log 'APP_KEY generated' } else { Write-Warning 'APP_KEY generation failed' }
+    }
 } else {
     Write-Log '.env.production already exists, left untouched'
 }
