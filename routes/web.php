@@ -492,11 +492,11 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:pengembalian-lebih-bayar-potong-gaji.create')
         ->name('pengembalian-lebih-bayar-potong-gaji.store');
 
-    Route::put('pengembalian-lebih-bayar-potong-gaji/{pengembalian_lebih_bayar_potong_gaji}', [PengembalianLebihBayarPotongGajiController::class, 'update'])
+    Route::put('pengembalian-lebih-bayar-potong-gaji/{pengembalian}', [PengembalianLebihBayarPotongGajiController::class, 'update'])
         ->middleware('permission:pengembalian-lebih-bayar-potong-gaji.update')
         ->name('pengembalian-lebih-bayar-potong-gaji.update');
 
-    Route::delete('pengembalian-lebih-bayar-potong-gaji/{pengembalian_lebih_bayar_potong_gaji}', [PengembalianLebihBayarPotongGajiController::class, 'destroy'])
+    Route::delete('pengembalian-lebih-bayar-potong-gaji/{pengembalian}', [PengembalianLebihBayarPotongGajiController::class, 'destroy'])
         ->middleware('permission:pengembalian-lebih-bayar-potong-gaji.delete')
         ->name('pengembalian-lebih-bayar-potong-gaji.destroy');
 

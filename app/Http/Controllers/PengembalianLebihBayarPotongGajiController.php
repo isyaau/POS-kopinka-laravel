@@ -116,16 +116,16 @@ class PengembalianLebihBayarPotongGajiController extends Controller
         return back()->with('success', 'Pengembalian lebih bayar potong gaji berhasil dicatat.');
     }
 
-    public function update(UpdatePengembalianLebihBayarPotongGajiRequest $request, PengembalianLebihBayarPotongGaji $pengembalianLebihBayarPotongGaji): RedirectResponse
+    public function update(UpdatePengembalianLebihBayarPotongGajiRequest $request, PengembalianLebihBayarPotongGaji $pengembalian): RedirectResponse
     {
-        $pengembalianLebihBayarPotongGaji->update($request->validated());
+        $pengembalian->update($request->validated());
 
         return back()->with('success', 'Data pengembalian lebih bayar potong gaji berhasil diperbarui.');
     }
 
-    public function destroy(PengembalianLebihBayarPotongGaji $pengembalianLebihBayarPotongGaji): RedirectResponse
+    public function destroy(PengembalianLebihBayarPotongGaji $pengembalian): RedirectResponse
     {
-        $pengembalianLebihBayarPotongGaji->delete();
+        $pengembalian->delete();
 
         return back()->with('success', 'Data pengembalian lebih bayar potong gaji berhasil dihapus.');
     }
